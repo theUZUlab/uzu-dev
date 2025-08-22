@@ -1,1 +1,1 @@
-# UZU Dev
+# uzu-dev
