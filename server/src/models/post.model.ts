@@ -40,7 +40,7 @@ export type PostDoc = {
     title: string;
     tag: string[];
     thumbnail: string;
-    date: String | null;
+    date: string | null;
     description: string;
     summary: string;
     deletedAt: Date | null;
