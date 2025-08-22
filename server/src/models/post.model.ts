@@ -1,14 +1,17 @@
 import { Schema, model, models, type HydratedDocument } from 'mongoose';
 
-/**
- * 스키마:
- * id(자동), title, tag, thumbnail, date, description, summary
- * - id 는 _id 로부터 파생된 가상 필드로 JSON 응답에 포함
- */
+const TYPES = ['project', 'blog'] as const;
+export type PostType = (typeof TYPES)[number];
+
 const PostSchema = new Schema(
     {
         title: { type: String, required: true, trim: true },
-        tag: [{ type: String, trim: true }],
+
+        type: { type: String, enum: TYPES, required: true, index: true },
+
+        category: { type: String, required: true, trim: true, index: true },
+        tags: [{ type: String, trim: true, index: true }],
+
         thumbnail: { type: String, default: '', trim: true },
         date: { type: String, default: null },
         description: { type: String, default: '' },
@@ -34,11 +37,15 @@ const PostSchema = new Schema(
 // 검색/정렬 인덱스
 PostSchema.index({ title: 'text', summary: 'text', description: 'text' });
 PostSchema.index({ createdAt: -1 });
+// 목록 필터링 최적화
+PostSchema.index({ type: 1, category: 1, createdAt: -1 });
 
 export type PostDoc = {
     id: string;
     title: string;
-    tag: string[];
+    type: PostType;
+    category: string;
+    tags: string[];
     thumbnail: string;
     date: string | null;
     description: string;

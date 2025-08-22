@@ -1,13 +1,8 @@
-/**
- * 클라이언트 바디를 받아 저장 가능한 형태로 정규화합니다.
- * - tag: 배열 또는 콤마 문자열 허용 (중복 제거)
- * - date: 문자열 그대로 저장 (필요 시 간단 검증 가능)
- * - thumbnail: 공백 트리밍 (빈 문자열은 무시)
- */
-
 type PostInput = {
     title?: unknown;
-    tag?: unknown;
+    type?: unknown;
+    category?: unknown;
+    tags?: unknown;
     thumbnail?: unknown;
     date?: unknown;
     description?: unknown;
@@ -16,7 +11,9 @@ type PostInput = {
 
 type Normalized = Partial<{
     title: string;
-    tag: string[];
+    type: 'project' | 'blog';
+    category: string;
+    tags: string[];
     thumbnail: string;
     date: string;
     description: string;
@@ -26,39 +23,69 @@ type Normalized = Partial<{
 export function normalizeBody(body: PostInput): Normalized {
     const out: Normalized = {};
 
+    // title
     if (typeof body.title === 'string') {
         const s = body.title.trim();
         if (s) out.title = s;
     }
 
-    if (Array.isArray(body.tag)) {
-        const arr = body.tag
-            .map(String)
-            .map((s) => s.trim())
-            .filter((s): s is string => s.length > 0);
-        if (arr.length) out.tag = [...new Set(arr)];
-    } else if (typeof body.tag === 'string') {
-        const arr = body.tag
-            .split(',')
-            .map((s: string) => s.trim())
-            .filter((s): s is string => s.length > 0);
-        if (arr.length) out.tag = [...new Set(arr)];
+    // type
+    if (typeof body.type === 'string') {
+        const t = body.type.trim().toLowerCase();
+        if (t === 'project' || t === 'blog') out.type = t;
     }
 
+    // category
+    if (typeof body.category === 'string') {
+        const s = body.category.trim();
+        if (s) out.category = s;
+    }
+
+    // tags
+    const parseTags = (v: unknown): string[] => {
+        if (Array.isArray(v)) {
+            return [
+                ...new Set(
+                    v
+                        .map(String)
+                        .map((s) => s.trim())
+                        .filter(Boolean)
+                ),
+            ];
+        }
+        if (typeof v === 'string') {
+            return [
+                ...new Set(
+                    v
+                        .split(',')
+                        .map((s) => s.trim())
+                        .filter(Boolean)
+                ),
+            ];
+        }
+        return [];
+    };
+    const parsed = parseTags((body as any).tags);
+    if (parsed.length) out.tags = parsed;
+
+    // thumbnail
     if (typeof body.thumbnail === 'string') {
         const s = body.thumbnail.trim();
         if (s) out.thumbnail = s;
     }
 
+    // date
     if (typeof body.date === 'string') {
         const s = body.date.trim();
         if (s) out.date = s;
     }
 
+    // description
     if (typeof body.description === 'string') {
         out.description = body.description;
     }
 
+    // summary
     if (typeof body.summary === 'string') {
         const s = body.summary.trim();
         if (s) out.summary = s;
