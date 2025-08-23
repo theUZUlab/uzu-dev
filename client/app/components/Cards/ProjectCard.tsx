@@ -1,7 +1,13 @@
-export default function ProjectCard() {
+import Link from "next/link";
+
+import type { Post } from "@/lib/types";
+
+export default function ProjectCard({ post }: { post: Post }) {
   return (
-    <div className="border border-[var(--color-line)] rounded-[var(--radius-lg)] p-4">
-      ProjectCard 컴포넌트
-    </div>
+    <Link href={`/projects/${post.category}/${post.id}`}>
+      <h3>{post.title}</h3>
+      <p>{post.summary}</p>
+      <div>{post.tags?.join(" · ")}</div>
+    </Link>
   );
 }
