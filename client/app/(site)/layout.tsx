@@ -1,26 +1,17 @@
-import "../globals.css";
-import Header from "../components/Header/Header";
-import Footer from "../components/Footer/Footer";
-import Sidebar from "../components/Sidebar/Sidebar";
+import Header from "@/app/components/Header/Header";
+import Sidebar from "@/app/components/Sidebar/Sidebar";
+import { SidebarProvider } from "@/app/components/Sidebar/SidebarContext";
 
 import type { ReactNode } from "react";
 
 export default function SiteLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="ko">
-      <body className="bg-[var(--color-bg)] text-[color:var(--color-text)] font-sans">
-        <div className="flex min-h-screen">
-          {/* 사이드바 */}
-          <Sidebar />
-
-          {/* 메인 콘텐츠 영역 */}
-          <div className="flex-1 flex flex-col">
-            <Header />
-            <main className="flex-1">{children}</main>
-            <Footer />
-          </div>
-        </div>
-      </body>
-    </html>
+    <SidebarProvider>
+      <div className="min-h-dvh flex flex-col">
+        <Header />
+        <Sidebar />
+        <main className="flex-1">{children}</main>
+      </div>
+    </SidebarProvider>
   );
 }

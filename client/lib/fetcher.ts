@@ -1,43 +1,45 @@
-import type { Post } from "./types";
+const API_BASE = (process.env.NEXT_PUBLIC_API_BASE?.replace(/\/$/, "") || "") + "/backend";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "";
+type Json = Record<string, unknown> | unknown[];
 
-/** 공통 GET(JSON) */
 async function getJSON<T>(url: string, revalidateSec = 60): Promise<T> {
   const res = await fetch(url, { next: { revalidate: revalidateSec } });
   if (!res.ok) {
     const text = await res.text().catch(() => "");
     throw new Error(`GET ${url} -> ${res.status} ${text}`);
   }
-  return res.json() as Promise<T>;
+  return (await res.json()) as T;
 }
 
-/** 목록 조회: /api/posts?q=&page=&limit=&type=&category=&tags= */
+/** 쿼리 문자열 유틸 */
+function buildUrl(path: string, qs?: Record<string, string | number | undefined>) {
+  const base = API_BASE.replace(/\/$/, "");
+  const p = path.startsWith("/") ? path : `/${path}`;
+  const search = new URLSearchParams();
+  if (qs) {
+    Object.entries(qs).forEach(([k, v]) => {
+      if (v !== undefined && v !== null) search.set(k, String(v));
+    });
+  }
+  const q = search.toString();
+  return `${base}${p}${q ? `?${q}` : ""}`;
+}
+
+/** 공통 목록 가져오기 */
 export async function listPosts(params: {
+  type?: "project" | "blog";
   q?: string;
   page?: number;
   limit?: number;
-  type?: "project" | "blog";
-  category?: string; // 예: "web" | "app"
-  tags?: string[]; // ["머신러닝"] 처럼 단일/다중
   revalidateSec?: number;
 }) {
-  const u = new URL(`${API_BASE}/api/posts`);
-  if (params.q) u.searchParams.set("q", params.q);
-  if (params.page) u.searchParams.set("page", String(params.page));
-  if (params.limit) u.searchParams.set("limit", String(params.limit));
-  if (params.type) u.searchParams.set("type", params.type);
-  if (params.category) u.searchParams.set("category", params.category);
-  if (params.tags?.length) u.searchParams.set("tags", params.tags.join(","));
-
-  return getJSON<{ data: Post[]; page: number; limit: number; total: number }>(
-    u.toString(),
-    params.revalidateSec ?? 60
-  );
+  const url = buildUrl("/api/posts", {
+    type: params.type,
+    q: params.q,
+    page: params.page,
+    limit: params.limit,
+  });
+  return getJSON<Json>(url, params.revalidateSec ?? 60);
 }
 
-/** 단건 조회: /api/posts/:id (slug를 안 쓰면 id 기준) */
-export async function getPost(id: string, revalidateSec = 300) {
-  const url = `${API_BASE}/api/posts/${encodeURIComponent(id)}`;
-  return getJSON<Post>(url, revalidateSec);
-}
+export { getJSON, buildUrl, API_BASE };
