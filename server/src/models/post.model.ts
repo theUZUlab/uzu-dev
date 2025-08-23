@@ -6,13 +6,12 @@ export type PostType = (typeof TYPES)[number];
 const PostSchema = new Schema(
     {
         title: { type: String, required: true, trim: true },
-
         type: { type: String, enum: TYPES, required: true, index: true },
-
         category: { type: String, required: true, trim: true, index: true },
         tags: [{ type: String, trim: true, index: true }],
-
         thumbnail: { type: String, default: '', trim: true },
+        repoUrl: { type: String, default: '', trim: true },
+        deployUrl: { type: String, default: '', trim: true },
         date: { type: String, default: null },
         description: { type: String, default: '' },
         summary: { type: String, default: '', trim: true },
@@ -47,6 +46,8 @@ export type PostDoc = {
     category: string;
     tags: string[];
     thumbnail: string;
+    repoUrl: string;
+    deployUrl: string;
     date: string | null;
     description: string;
     summary: string;
