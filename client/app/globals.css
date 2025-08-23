@@ -1,0 +1,74 @@
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css");
+@import "tailwindcss";
+
+/* ===========================================================
+   @theme: 디자인 토큰 정의 (기본: 다크 모드)
+   - color, spacing, radius, typography, container width 등
+   - 아래 변수들은 Tailwind 유틸리티에서 [] 표기와 함께 사용
+     예) bg-[var(--color-bg)]  text-[color:var(--color-text)]
+=========================================================== */
+@theme {
+  /* ---------- 색상 팔레트 (Dark) ---------- */
+  --color-bg: #111319; /* 페이지 배경 */
+  --color-panel: #1a1c22; /* 카드/패널 배경 */
+  --color-line: #25272c; /* 경계선/디바이더 */
+  --color-text: #d4d1d6; /* 본문 텍스트 */
+  --color-muted: rgba(37, 39, 44, 0.5); /* 보조 텍스트 */
+  --color-brand: #5950a3; /* 포커스/주요 버튼 */
+
+  /* ---------- 폰트/라운드/간격 ---------- */
+  --font-sans:
+    "Pretendard Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans", sans-serif;
+  --radius-xl: 1rem;
+  --radius-lg: 0.75rem;
+  --radius-md: 0.5rem;
+  --gap: 20px; /* 레이아웃 기본 간격 */
+
+  /* ---------- 컨테이너 너비 (반응형 max-width) ---------- */
+  --container-3xl: 80rem; /* 1280px */
+  --container-2xl: 72rem; /* 1152px */
+  --container-xl: 64rem; /* 1024px */
+  --container-lg: 56rem; /* 896px  */
+  --container-md: 48rem; /* 768px  */
+
+  /* ---------- 타이포 스케일 ---------- */
+  --text-xs: 0.875rem; /* 14px */
+  --text-sm: 1rem; /* 16px */
+  --text-base: 1.125rem; /* 18px */
+  --text-lg: 1.25rem; /* 20px */
+  --text-xl: 1.5rem; /* 24px */
+  --text-2xl: 2rem; /* 32px */
+  --text-3xl: 2.25rem; /* 36px */
+}
+
+/* ===========================================================
+   라이트 모드 (OS/브라우저 선호에 따라 자동 전환)
+   - prefers-color-scheme: light 에서만 아래 토큰이 override
+=========================================================== */
+@media (prefers-color-scheme: light) {
+  @theme {
+    --color-bg: #f5f5f5;
+    --color-panel: #ffffff;
+    --color-line: #dee0da;
+    --color-text: #5e503f;
+    --color-muted: rgba(94, 80, 63, 0.5);
+    --color-brand: #e07a5f;
+  }
+
+  /* 라이트 모드에서 body 배경/텍스트 재적용 (토큰 기반) */
+  body {
+    @apply bg-[var(--color-bg)] text-[color:var(--color-text)];
+  }
+}
+
+/* ===========================================================
+   Base Reset / 문서 기본 스타일
+=========================================================== */
+html,
+body {
+  height: 100%;
+}
+body {
+  @apply bg-[var(--color-bg)] text-[color:var(--color-text)] font-sans antialiased;
+}
