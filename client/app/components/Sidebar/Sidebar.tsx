@@ -21,7 +21,7 @@ export default function Sidebar() {
     const active = startsWith ? pathname.startsWith(target) : pathname === target;
     return active
       ? "text-[var(--color-brand)] hover:text-[var(--color-brand)]"
-      : "text-[color:var(--color-text)] hover:text-[var(--color-brand)]";
+      : "text-[var(--color-text)] hover:text-[var(--color-brand)]";
   };
 
   const totalProj = (projCats ?? []).reduce((acc, c) => acc + c.count, 0);
@@ -49,10 +49,13 @@ export default function Sidebar() {
     };
   }, []);
 
+  const asideId = "app-sidebar";
+
   return (
     <>
       {/* overlay */}
       <div
+        role="presentation"
         aria-hidden={!open}
         onClick={closeSidebar}
         className={[
@@ -63,8 +66,10 @@ export default function Sidebar() {
 
       {/* panel */}
       <aside
+        id={asideId}
         role="dialog"
         aria-modal="true"
+        aria-labelledby={`${asideId}-title`}
         className={[
           "fixed inset-y-0 right-0 z-50",
           "bg-[var(--color-bg)]",
@@ -72,16 +77,16 @@ export default function Sidebar() {
           open ? "translate-x-0" : "translate-x-full",
           // base
           "w-[80%] max-w-[320px] px-4 py-6",
-          // md 이상
           "md:w-[60%] md:max-w-[360px] md:px-6 md:py-7",
-          // lg 이상
           "lg:w-[420px] lg:max-w-[420px] lg:px-8",
-          // 2xl 이상
           "2xl:w-[480px] 2xl:max-w-[480px] 2xl:px-10",
-          // layout
           "flex flex-col",
         ].join(" ")}
       >
+        <h2 id={`${asideId}-title`} className="sr-only">
+          사이드바 메뉴
+        </h2>
+
         <div className="flex justify-end">
           <button
             type="button"
@@ -107,138 +112,158 @@ export default function Sidebar() {
           </button>
         </div>
 
-        <nav className="grid gap-1" aria-label="사이드바 메뉴">
-          {/* Home */}
-          <Link
-            href="/"
-            onClick={closeSidebar}
-            className={`py-2 text-lg lg:text-xl font-black ${linkColor("/")}`}
-          >
-            Home
-          </Link>
-
-          {/* Projects */}
-          <Accordion
-            title={
-              <span
-                className={`text-lg lg:text-xl font-black ${linkColor("/projects", {
-                  startsWith: true,
-                })}`}
+        <nav aria-label="사이드바 메뉴">
+          <ul className="grid gap-3">
+            {/* Home */}
+            <li className="leading-none">
+              <Link
+                href="/"
+                onClick={closeSidebar}
+                className={`inline-flex items-center leading-none py-2 text-lg lg:text-xl font-black ${linkColor(
+                  "/"
+                )}`}
+                aria-current={pathname === "/" ? "page" : undefined}
               >
-                Projects
-              </span>
-            }
-          >
-            {loading && <div className="text-xs text-[color:var(--color-text)]">불러오는 중…</div>}
+                Home
+              </Link>
+            </li>
 
-            {!loading && (
-              <ul className="grid gap-1">
-                {/* All Projects */}
-                <li>
-                  <Link
-                    href="/projects"
-                    onClick={closeSidebar}
-                    className={[
-                      "flex items-center justify-between px-3 py-1 text-sm font-semibold",
-                      linkColor("/projects", { startsWith: true }),
-                    ].join(" ")}
+            {/* Projects */}
+            <li className="leading-none">
+              <Accordion
+                title={
+                  <span
+                    className={`inline-flex items-center leading-none text-lg lg:text-xl font-black ${linkColor(
+                      "/projects",
+                      {
+                        startsWith: true,
+                      }
+                    )}`}
+                    aria-current={pathname.startsWith("/projects") ? "page" : undefined}
                   >
-                    <span>All Projects</span>
-                    <span className="text-xs text-[color:var(--color-text)]">{totalProj}</span>
-                  </Link>
-                </li>
+                    Projects
+                  </span>
+                }
+              >
+                {loading && <div className="text-xs text-[var(--color-text)]">불러오는 중…</div>}
 
-                {/* 카테고리 */}
-                {projCats && projCats.length > 0 ? (
-                  projCats.map((c) => (
-                    <li key={c.name}>
+                {!loading && (
+                  <ul className="grid gap-1">
+                    <li>
                       <Link
-                        href={{ pathname: "/projects", query: { category: c.name } }}
+                        href="/projects"
                         onClick={closeSidebar}
                         className={[
                           "flex items-center justify-between px-3 py-1 text-sm font-semibold",
                           linkColor("/projects", { startsWith: true }),
                         ].join(" ")}
+                        aria-current={pathname.startsWith("/projects") ? "page" : undefined}
                       >
-                        <span>{c.name}</span>
-                        <span className="text-xs text-[color:var(--color-text)]">{c.count}</span>
+                        <span>All Projects</span>
+                        <span className="text-xs text-[var(--color-text)]">{totalProj}</span>
                       </Link>
                     </li>
-                  ))
-                ) : (
-                  <li className="px-3 py-1 text-xs text-[color:var(--color-text)]">
-                    카테고리 없음
-                  </li>
+                    {projCats && projCats.length > 0 ? (
+                      projCats.map((c) => {
+                        const href = `/projects/${encodeURIComponent(c.name)}`;
+                        return (
+                          <li key={c.name}>
+                            <Link
+                              href={href}
+                              onClick={closeSidebar}
+                              className={[
+                                "flex items-center justify-between px-3 py-1 text-sm font-semibold",
+                                linkColor(href),
+                              ].join(" ")}
+                              aria-current={pathname === href ? "page" : undefined}
+                            >
+                              <span>{c.name}</span>
+                              <span className="text-xs text-[var(--color-text)]">{c.count}</span>
+                            </Link>
+                          </li>
+                        );
+                      })
+                    ) : (
+                      <li className="px-3 py-1 text-xs text-[var(--color-text)]">카테고리 없음</li>
+                    )}
+                  </ul>
                 )}
-              </ul>
-            )}
-          </Accordion>
+              </Accordion>
+            </li>
 
-          {/* Blogs */}
-          <Accordion
-            title={
-              <span
-                className={`text-lg lg:text-xl font-black ${linkColor("/blogs", {
-                  startsWith: true,
-                })}`}
-              >
-                Blogs
-              </span>
-            }
-          >
-            {loading && <div className="text-xs text-[color:var(--color-text)]">불러오는 중…</div>}
-
-            {!loading && (
-              <ul className="grid gap-1">
-                {/* All Blogs */}
-                <li>
-                  <Link
-                    href="/blogs"
-                    onClick={closeSidebar}
-                    className={[
-                      "flex items-center justify-between px-3 py-1 text-sm font-semibold",
-                      linkColor("/blogs", { startsWith: true }),
-                    ].join(" ")}
+            {/* Blogs */}
+            <li className="leading-none">
+              <Accordion
+                title={
+                  <span
+                    className={`inline-flex items-center leading-none text-lg lg:text-xl font-black ${linkColor(
+                      "/blogs",
+                      {
+                        startsWith: true,
+                      }
+                    )}`}
+                    aria-current={pathname.startsWith("/blogs") ? "page" : undefined}
                   >
-                    <span>All Blogs</span>
-                    <span className="text-xs text-[color:var(--color-text)]">{totalBlog}</span>
-                  </Link>
-                </li>
-
-                {/* 카테고리 */}
-                {blogCats && blogCats.length > 0 ? (
-                  blogCats.map((c) => (
-                    <li key={c.name}>
+                    Blogs
+                  </span>
+                }
+              >
+                {loading && <div className="text-xs text-[var(--color-text)]">불러오는 중…</div>}
+                {!loading && (
+                  <ul className="grid gap-1">
+                    <li>
                       <Link
-                        href={{ pathname: "/blogs", query: { category: c.name } }}
+                        href="/blogs"
                         onClick={closeSidebar}
                         className={[
                           "flex items-center justify-between px-3 py-1 text-sm font-semibold",
                           linkColor("/blogs", { startsWith: true }),
                         ].join(" ")}
+                        aria-current={pathname.startsWith("/blogs") ? "page" : undefined}
                       >
-                        <span>{c.name}</span>
-                        <span className="text-xs text-[color:var(--color-text)]">{c.count}</span>
+                        <span>All Blogs</span>
+                        <span className="text-xs text-[var(--color-text)]">{totalBlog}</span>
                       </Link>
                     </li>
-                  ))
-                ) : (
-                  <li className="px-3 py-1 text-xs text-[color:var(--color-text)]">
-                    카테고리 없음
-                  </li>
+                    {blogCats && blogCats.length > 0 ? (
+                      blogCats.map((c) => (
+                        <li key={c.name}>
+                          <Link
+                            href={{ pathname: "/blogs", query: { category: c.name } }}
+                            onClick={closeSidebar}
+                            className={[
+                              "flex items-center justify-between px-3 py-1 text-sm font-semibold",
+                              linkColor("/blogs", { startsWith: true }),
+                            ].join(" ")}
+                            aria-current={pathname.startsWith("/blogs") ? "page" : undefined}
+                          >
+                            <span>{c.name}</span>
+                            <span className="text-xs text-[var(--color-text)]">{c.count}</span>
+                          </Link>
+                        </li>
+                      ))
+                    ) : (
+                      <li className="px-3 py-1 text-xs text-[var(--color-text)]">카테고리 없음</li>
+                    )}
+                  </ul>
                 )}
-              </ul>
-            )}
-          </Accordion>
+              </Accordion>
+            </li>
 
-          {/* Support */}
-          <Link
-            href="/support"
-            onClick={closeSidebar}
-            className={`py-2 text-lg lg:text-xl font-black ${linkColor("/support")}`}
-          >
-            Support
-          </Link>
+            {/* Support */}
+            <li className="leading-none">
+              <Link
+                href="/support"
+                onClick={closeSidebar}
+                className={`inline-flex items-center leading-none py-2 text-lg lg:text-xl font-black ${linkColor(
+                  "/support"
+                )}`}
+                aria-current={pathname === "/support" ? "page" : undefined}
+              >
+                Support
+              </Link>
+            </li>
+          </ul>
         </nav>
       </aside>
     </>

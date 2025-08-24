@@ -38,10 +38,15 @@ export default function Header() {
     };
   }, []);
 
-  const linkCls = (target: string) =>
-    `font-black text-lg lg:text-xl transition-colors
-     hover:text-[var(--color-brand)]
-     ${pathname === target ? "text-[var(--color-brand)]" : "text-[color:var(--color-text)]"}`;
+  const isActive = (target: string, opts?: { startsWith?: boolean }) =>
+    opts?.startsWith ? pathname.startsWith(target) : pathname === target;
+
+  const linkCls = (target: string, opts?: { startsWith?: boolean }) => {
+    const active = isActive(target, opts);
+    return `font-black text-lg lg:text-xl transition-colors
+      hover:text-[var(--color-brand)]
+      ${active ? "text-[var(--color-brand)]" : "text-[var(--color-text)]"}`;
+  };
 
   // 로고 공통 props
   const logoProps = {
@@ -89,154 +94,172 @@ export default function Header() {
           <span className="sr-only">UZU-DEV</span>
         </Link>
 
-        {/* PC 네비 (md 이상) */}
+        {/* PC 네비게이션 (md 이상) */}
         <nav
           className="hidden md:flex items-center gap-5 lg:gap-6 2xl:gap-8"
           aria-label="주요 메뉴"
         >
-          <Link href="/" className={linkCls("/")}>
-            Home
-          </Link>
+          <ul className="flex items-center gap-5 lg:gap-6 2xl:gap-8">
+            <li>
+              <Link
+                href="/"
+                className={linkCls("/")}
+                aria-current={isActive("/") ? "page" : undefined}
+              >
+                Home
+              </Link>
+            </li>
 
-          {/* Projects hover */}
-          <div className="relative group">
-            <Link href="/projects" className={linkCls("/projects")}>
-              Projects
-            </Link>
-            <div
-              className="
-                pointer-events-none absolute left-1/2 top-full -translate-x-1/2
-                pt-6 opacity-0 transition-opacity duration-150
-                group-hover:opacity-100 group-hover:pointer-events-auto
-              "
-              role="menu"
-              aria-label="Project categories"
-            >
-              <div className="min-w-52 lg:min-w-64 rounded-xl lg:rounded-2xl border-2 border-[var(--color-line)] bg-[var(--color-panel)] p-2">
-                {loading && (
-                  <div className="px-2 py-2 text-xs text-[color:var(--color-text)]">
-                    불러오는 중…
-                  </div>
-                )}
+            {/* Projects hover */}
+            <li className="relative group">
+              <Link
+                href="/projects"
+                className={linkCls("/projects", { startsWith: true })}
+                aria-current={isActive("/projects", { startsWith: true }) ? "page" : undefined}
+                aria-haspopup="true"
+                aria-expanded="false"
+              >
+                Projects
+              </Link>
+              <div
+                className="
+                  pointer-events-none absolute left-1/2 top-full -translate-x-1/2
+                  pt-6 opacity-0 transition-opacity duration-150
+                  group-hover:opacity-100 group-hover:pointer-events-auto
+                "
+                role="menu"
+                aria-label="Project categories"
+              >
+                <div className="min-w-52 lg:min-w-64 rounded-xl lg:rounded-2xl border-2 border-[var(--color-line)] bg-[var(--color-panel)] p-2">
+                  {loading && (
+                    <div className="px-2 py-2 text-xs text-[var(--color-text)]">불러오는 중…</div>
+                  )}
 
-                {!loading && (
-                  <ul className="max-h-64 lg:max-h-72 overflow-auto">
-                    {/* All Projects */}
-                    <li>
-                      <Link
-                        href="/projects"
-                        className="
-                          flex items-center justify-between rounded-md px-5 py-2 lg:text-lg font-bold
-                          text-[color:var(--color-text)] hover:text-[var(--color-brand)]
-                        "
-                        role="menuitem"
-                      >
-                        <span>All Projects</span>
-                        <span className="text-xs text-[color:var(--color-text)]">{totalProj}</span>
-                      </Link>
-                    </li>
-
-                    {/* 카테고리들 */}
-                    {projCats && projCats.length > 0 ? (
-                      projCats.map((c) => (
-                        <li key={c.name}>
-                          <Link
-                            href={{ pathname: "/projects", query: { category: c.name } }}
-                            className="
-                              flex items-center justify-between rounded-md px-5 py-2 lg:text-lg font-bold
-                              text-[color:var(--color-text)] hover:text-[var(--color-brand)]
-                            "
-                            role="menuitem"
-                          >
-                            <span>{c.name}</span>
-                            <span className="text-xs text-[color:var(--color-text)]">
-                              {c.count}
-                            </span>
-                          </Link>
-                        </li>
-                      ))
-                    ) : (
-                      <li className="px-5 py-2 text-xs text-[color:var(--color-text)]">
-                        카테고리 없음
+                  {!loading && (
+                    <ul className="max-h-64 lg:max-h-72 overflow-auto">
+                      {/* All Projects */}
+                      <li>
+                        <Link
+                          href="/projects"
+                          className="
+                            flex items-center justify-between rounded-md px-5 py-2 lg:text-lg font-bold
+                            text-[var(--color-text)] hover:text-[var(--color-brand)]
+                          "
+                          role="menuitem"
+                        >
+                          <span>All Projects</span>
+                          <span className="text-xs text-[var(--color-text)]">{totalProj}</span>
+                        </Link>
                       </li>
-                    )}
-                  </ul>
-                )}
-              </div>
-            </div>
-          </div>
 
-          {/* Blogs hover */}
-          <div className="relative group">
-            <Link href="/blogs" className={linkCls("/blogs")}>
-              Blogs
-            </Link>
-            <div
-              className="
-                pointer-events-none absolute left-1/2 top-full -translate-x-1/2
-                pt-6 opacity-0 transition-opacity duration-150
-                group-hover:opacity-100 group-hover:pointer-events-auto
-              "
-              role="menu"
-              aria-label="Blog categories"
-            >
-              <div className="min-w-52 lg:min-w-64 rounded-xl lg:rounded-2xl border-2 border-[var(--color-line)] bg-[var(--color-panel)] p-2">
-                {loading && (
-                  <div className="px-2 py-2 text-xs text-[color:var(--color-text)]">
-                    불러오는 중…
-                  </div>
-                )}
-
-                {!loading && (
-                  <ul className="max-h-64 lg:max-h-72 overflow-auto">
-                    {/* All Blogs */}
-                    <li>
-                      <Link
-                        href="/blogs"
-                        className="
-                          flex items-center justify-between rounded-md px-5 py-2 lg:text-lg font-bold
-                          text-[color:var(--color-text)] hover:text-[var(--color-brand)]
-                        "
-                        role="menuitem"
-                      >
-                        <span>All Blogs</span>
-                        <span className="text-xs text-[color:var(--color-text)]">{totalBlog}</span>
-                      </Link>
-                    </li>
-
-                    {/* 카테고리들 */}
-                    {blogCats && blogCats.length > 0 ? (
-                      blogCats.map((c) => (
-                        <li key={c.name}>
-                          <Link
-                            href={{ pathname: "/blogs", query: { category: c.name } }}
-                            className="
-                              flex items-center justify-between rounded-md px-5 py-2 lg:text-lg font-bold
-                              text-[color:var(--color-text)] hover:text-[var(--color-brand)]
-                            "
-                            role="menuitem"
-                          >
-                            <span>{c.name}</span>
-                            <span className="text-xs text-[color:var(--color-text)]">
-                              {c.count}
-                            </span>
-                          </Link>
+                      {/* 카테고리들 (세그먼트 링크) */}
+                      {projCats && projCats.length > 0 ? (
+                        projCats.map((c) => (
+                          <li key={c.name}>
+                            <Link
+                              href={`/projects/${encodeURIComponent(c.name)}`}
+                              className="
+                                flex items-center justify-between rounded-md px-5 py-2 lg:text-lg font-bold
+                                text-[var(--color-text)] hover:text-[var(--color-brand)]
+                              "
+                              role="menuitem"
+                            >
+                              <span>{c.name}</span>
+                              <span className="text-xs text-[var(--color-text)]">{c.count}</span>
+                            </Link>
+                          </li>
+                        ))
+                      ) : (
+                        <li className="px-5 py-2 text-xs text-[var(--color-text)]">
+                          카테고리 없음
                         </li>
-                      ))
-                    ) : (
-                      <li className="px-5 py-2 text-xs text-[color:var(--color-text)]">
-                        카테고리 없음
-                      </li>
-                    )}
-                  </ul>
-                )}
+                      )}
+                    </ul>
+                  )}
+                </div>
               </div>
-            </div>
-          </div>
+            </li>
 
-          <Link href="/support" className={linkCls("/support")}>
-            Support
-          </Link>
+            {/* Blogs hover */}
+            <li className="relative group">
+              <Link
+                href="/blogs"
+                className={linkCls("/blogs", { startsWith: true })}
+                aria-current={isActive("/blogs", { startsWith: true }) ? "page" : undefined}
+                aria-haspopup="true"
+                aria-expanded="false"
+              >
+                Blogs
+              </Link>
+              <div
+                className="
+                  pointer-events-none absolute left-1/2 top-full -translate-x-1/2
+                  pt-6 opacity-0 transition-opacity duration-150
+                  group-hover:opacity-100 group-hover:pointer-events-auto
+                "
+                role="menu"
+                aria-label="Blog categories"
+              >
+                <div className="min-w-52 lg:min-w-64 rounded-xl lg:rounded-2xl border-2 border-[var(--color-line)] bg-[var(--color-panel)] p-2">
+                  {loading && (
+                    <div className="px-2 py-2 text-xs text-[var(--color-text)]">불러오는 중…</div>
+                  )}
+
+                  {!loading && (
+                    <ul className="max-h-64 lg:max-h-72 overflow-auto">
+                      {/* All Blogs */}
+                      <li>
+                        <Link
+                          href="/blogs"
+                          className="
+                            flex items-center justify-between rounded-md px-5 py-2 lg:text-lg font-bold
+                            text-[var(--color-text)] hover:text-[var(--color-brand)]
+                          "
+                          role="menuitem"
+                        >
+                          <span>All Blogs</span>
+                          <span className="text-xs text-[var(--color-text)]">{totalBlog}</span>
+                        </Link>
+                      </li>
+
+                      {/* 카테고리들 */}
+                      {blogCats && blogCats.length > 0 ? (
+                        blogCats.map((c) => (
+                          <li key={c.name}>
+                            <Link
+                              href={{ pathname: "/blogs", query: { category: c.name } }}
+                              className="
+                                flex items-center justify-between rounded-md px-5 py-2 lg:text-lg font-bold
+                                text-[var(--color-text)] hover:text-[var(--color-brand)]
+                              "
+                              role="menuitem"
+                            >
+                              <span>{c.name}</span>
+                              <span className="text-xs text-[var(--color-text)]">{c.count}</span>
+                            </Link>
+                          </li>
+                        ))
+                      ) : (
+                        <li className="px-5 py-2 text-xs text-[var(--color-text)]">
+                          카테고리 없음
+                        </li>
+                      )}
+                    </ul>
+                  )}
+                </div>
+              </div>
+            </li>
+
+            <li>
+              <Link
+                href="/support"
+                className={linkCls("/support")}
+                aria-current={isActive("/support") ? "page" : undefined}
+              >
+                Support
+              </Link>
+            </li>
+          </ul>
         </nav>
 
         {/* 모바일 햄버거 (md 미만) */}
