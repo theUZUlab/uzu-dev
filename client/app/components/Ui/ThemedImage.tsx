@@ -31,7 +31,7 @@ export default function ThemedImage({
         priority={priority}
         loading={priority ? undefined : "lazy"}
         decoding={priority ? undefined : "async"}
-        className={["block dark:hidden", img.className].filter(Boolean).join(" ")}
+        className={["theme-light", img.className].filter(Boolean).join(" ")}
       />
       {/* Dark */}
       <Image
@@ -41,7 +41,7 @@ export default function ThemedImage({
         priority={priority}
         loading={priority ? undefined : "lazy"}
         decoding={priority ? undefined : "async"}
-        className={["hidden dark:block", img.className].filter(Boolean).join(" ")}
+        className={["theme-dark", img.className].filter(Boolean).join(" ")}
       />
     </span>
   );

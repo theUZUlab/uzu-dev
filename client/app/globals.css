@@ -78,6 +78,66 @@
     );
   }
 }
+/* ===========================================================
+  Manual Theme Override (data-theme 우선)
+=========================================================== */
+:root[data-theme="dark"] {
+  --color-bg: #111319;
+  --color-panel: #1a1c22;
+  --color-line: #25272c;
+  --color-text: #d4d1d6;
+  --color-muted: rgba(37, 39, 44, 0.5);
+  --color-brand: #5950a3;
+
+  --aurora-gradient: conic-gradient(
+    from 0deg,
+    #433a8e,
+    #5950a3,
+    #776fba,
+    #9891ca,
+    #c0bce1,
+    #433a8e
+  );
+}
+
+:root[data-theme="light"] {
+  --color-bg: #f5f5f5;
+  --color-panel: #ffffff;
+  --color-line: #dee0da;
+  --color-text: #5e503f;
+  --color-muted: rgba(94, 80, 63, 0.5);
+  --color-brand: #e07a5f;
+
+  --aurora-gradient: conic-gradient(
+    from 0deg,
+    #d4af37,
+    #e6c26b,
+    #f9d8c1,
+    #e07a5f,
+    #c06b53,
+    #d4af37
+  );
+}
+
+/* data-theme가 설정된 경우: 그 값을 우선 적용 */
+:root[data-theme="light"] .theme-dark {
+  display: none !important;
+}
+:root[data-theme="dark"] .theme-light {
+  display: none !important;
+}
+
+/* data-theme가 없을 때는 시스템 선호도에 따름 */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .theme-light {
+    display: none !important;
+  }
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) .theme-dark {
+    display: none !important;
+  }
+}
 
 /* ===========================================================
   Base Reset
