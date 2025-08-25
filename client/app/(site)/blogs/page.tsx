@@ -1,38 +1,11 @@
 import { listBlogs } from "@/lib/api/posts";
 import TagTabs from "@/app/components/Filters/TagTabs";
-import BlogsInfiniteListClient from "@/app/components/Cards/BlogsInfiniteListClient";
+import PostsInfiniteListClient from "@/app/components/Lists/PostsInfiniteListClient";
+import { parseTags, matchAnyTag, compareByDateDesc } from "@/lib/query";
 
 import type { Post } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
-
-/** 유틸: parseTags, matchAnyTag, compareByDateDesc (위와 동일) */
-function parseTags(params: Record<string, string | string[] | undefined>) {
-  const raw = params?.tags;
-  if (!raw) return [];
-  if (Array.isArray(raw))
-    return raw
-      .flatMap((x) => x.split(","))
-      .map((s) => s.trim())
-      .filter(Boolean);
-  return raw
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
-}
-function matchAnyTag(itemTags: unknown, selected: string[]) {
-  if (!selected.length) return true;
-  if (!Array.isArray(itemTags)) return false;
-  const set = new Set(itemTags as string[]);
-  return selected.some((t) => set.has(t));
-}
-function compareByDateDesc(a?: string | null, b?: string | null) {
-  const da = a ? Date.parse(a) : NaN;
-  const db = b ? Date.parse(b) : NaN;
-  const va = Number.isNaN(da) ? -Infinity : da;
-  const vb = Number.isNaN(db) ? -Infinity : db;
-  return vb - va;
-}
 
 export default async function BlogsPage({
   searchParams,
@@ -59,12 +32,10 @@ export default async function BlogsPage({
       <TagTabs type="blog" />
 
       {sorted.length === 0 ? (
-        <p className="text-[var(--color-muted)] mt-6 md:mt-7 lg:mt-8">
-          조건에 맞는 블로그가 없습니다.
-        </p>
+        <p className="text-[var(--color-muted)] mt-6 md:mt-7 lg:mt-8">조건에 맞는 블로그가 없습니다.</p>
       ) : (
         <section aria-label="블로그 목록" className="mt-6 md:mt-7 lg:mt-8">
-          <BlogsInfiniteListClient key={key} allItems={sorted} pageSize={8} />
+          <PostsInfiniteListClient key={key} allItems={sorted} pageSize={8} basePath="/blogs" />
         </section>
       )}
     </main>

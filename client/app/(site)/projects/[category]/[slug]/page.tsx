@@ -12,6 +12,7 @@ type Params = { category: string; slug: string };
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { slug } = await params;
+
   let post: Post | null = null;
   try {
     post = await getProjectById(slug);
@@ -62,15 +63,12 @@ export default async function ProjectPostPage({ params }: { params: Promise<Para
             <Link
               key={tag}
               href={`/projects?tags=${encodeURIComponent(tag)}`}
-              className="aurora-frame hover:cursor-pointer rounded-[var(--radius-md)] p-0.5 shrink-0 snap-start"
+              className="aurora-frame hover:cursor-pointer rounded-[var(--radius-md)] p-0.5 snap-start"
             >
               <span
                 className="
-                  aurora-inner
-                  w-full bg-[var(--color-panel)]
-                  flex flex-nowrap gap-2 
-                  md:flex-wrap md:overflow-visible md:snap-none
-                  px-3 py-1 md:px:4 lg:px-5 
+                  aurora-inner w-full bg-[var(--color-panel)]
+                  px-3 py-1 md:px:4 lg:px-5
                   text-sm md:text-base lg:text-lg font-bold text-[var(--color-text)]
                   rounded-[var(--radius-md)]
                 "
@@ -99,7 +97,7 @@ export default async function ProjectPostPage({ params }: { params: Promise<Para
 
       {/* 썸네일 */}
       {post.thumbnail && (
-        <div className="mt-6 md:mt-7 lg:mt-8 relative  aspect-[3/2] w-full overflow-hidden rounded-md mb-10 md:mb-15 lg:mb-20">
+        <div className="mt-6 md:mt-7 lg:mt-8 relative aspect-[3/2] w-full overflow-hidden rounded-md mb-10 md:mb-15 lg:mb-20">
           <Image
             src={post.thumbnail}
             alt={`${post.title} 썸네일`}

@@ -8,11 +8,15 @@ import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
 
 import type { Schema } from "hast-util-sanitize";
 
-const schema = {
+// 허용 태그/속성 최소 확장 (Next/Image 사용 안 하고 정적 HTML만 출력)
+const schema: Schema = {
   ...defaultSchema,
   attributes: {
     ...(defaultSchema.attributes || {}),
-    a: [...(defaultSchema.attributes?.a || []), ["target", "rel", "href", "title"]],
+    a: [
+      ...(defaultSchema.attributes?.a || []),
+      ["target", "rel", "href", "title"],
+    ],
     img: [
       ...(defaultSchema.attributes?.img || []),
       ["src", "alt", "title", "width", "height", "loading", "decoding"],
@@ -53,7 +57,7 @@ export async function renderMarkdown(md: string): Promise<string> {
     .use(remarkGfm)
     .use(remarkBreaks)
     .use(remarkRehype)
-    .use(rehypeSanitize, schema as Schema)
+    .use(rehypeSanitize, schema)
     .use(rehypeStringify)
     .process(md ?? "");
 

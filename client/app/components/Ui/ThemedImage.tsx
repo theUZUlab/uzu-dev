@@ -1,15 +1,16 @@
-// components/Ui/ThemedImage.tsx
 "use client";
 
 import Link from "next/link";
-import Image, { ImageProps } from "next/image";
+import Image, { type ImageProps } from "next/image";
 
-type Props = Omit<ImageProps, "src" | "alt"> & {
+type Props = Omit<ImageProps, "src" | "alt" | "fill"> & {
   alt: string;
   lightSrc: string;
   darkSrc: string;
   href?: string;
   wrapperClassName?: string;
+  /** fill 이미지 sizes. 기본 100vw */
+  sizes?: string;
   priority?: boolean;
 };
 
@@ -21,28 +22,22 @@ export default function ThemedImage({
   wrapperClassName,
   priority,
   className,
+  sizes = "100vw",
   ...img
 }: Props) {
   const node = (
-    <span
-      className={[
-        // ↓↓↓ 여기 w-full h-full 추가가 핵심
-        "relative block w-full h-full",
-        wrapperClassName,
-      ]
-        .filter(Boolean)
-        .join(" ")}
-    >
+    <span className={["relative block w-full h-full", wrapperClassName].filter(Boolean).join(" ")}>
       {/* Light */}
       <Image
         {...img}
         src={lightSrc}
         alt={alt}
         fill
+        sizes={sizes}
         priority={priority}
         loading={priority ? undefined : "lazy"}
         decoding={priority ? undefined : "async"}
-        className={["theme-light", "object-cover", className].filter(Boolean).join(" ")}
+        className={["theme-light object-cover", className].filter(Boolean).join(" ")}
       />
       {/* Dark */}
       <Image
@@ -50,10 +45,11 @@ export default function ThemedImage({
         src={darkSrc}
         alt={alt}
         fill
+        sizes={sizes}
         priority={priority}
         loading={priority ? undefined : "lazy"}
         decoding={priority ? undefined : "async"}
-        className={["theme-dark", "object-cover", className].filter(Boolean).join(" ")}
+        className={["theme-dark object-cover", className].filter(Boolean).join(" ")}
       />
     </span>
   );

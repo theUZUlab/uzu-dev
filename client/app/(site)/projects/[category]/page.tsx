@@ -1,38 +1,11 @@
 import { listProjects } from "@/lib/api/posts";
 import TagTabs from "@/app/components/Filters/TagTabs";
-import ProjectsInfiniteListClient from "@/app/components/Cards/ProjectsInfiniteListClient";
+import PostsInfiniteListClient from "@/app/components/Lists/PostsInfiniteListClient";
+import { parseTags, matchAnyTag, compareByDateDesc } from "@/lib/query";
 
 import type { Post } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
-
-/** 유틸: parseTags, matchAnyTag, compareByDateDesc (위와 동일) */
-function parseTags(params: Record<string, string | string[] | undefined>) {
-  const raw = params?.tags;
-  if (!raw) return [];
-  if (Array.isArray(raw))
-    return raw
-      .flatMap((x) => x.split(","))
-      .map((s) => s.trim())
-      .filter(Boolean);
-  return raw
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
-}
-function matchAnyTag(itemTags: unknown, selected: string[]) {
-  if (!selected.length) return true;
-  if (!Array.isArray(itemTags)) return false;
-  const set = new Set(itemTags as string[]);
-  return selected.some((t) => set.has(t));
-}
-function compareByDateDesc(a?: string | null, b?: string | null) {
-  const da = a ? Date.parse(a) : NaN;
-  const db = b ? Date.parse(b) : NaN;
-  const va = Number.isNaN(da) ? -Infinity : da;
-  const vb = Number.isNaN(db) ? -Infinity : db;
-  return vb - va;
-}
 
 export default async function CategoryProjectsPage({
   params,
@@ -46,10 +19,14 @@ export default async function CategoryProjectsPage({
   const sp = (await searchParams) ?? {};
   const tags = parseTags(sp);
 
-  const res = await listProjects({ page: 1, limit: 500, category });
+  const res = await listProjects({ page: 1, limit: 500 });
   const allItems = Array.isArray(res?.items) ? (res.items as Post[]) : [];
 
-  const filtered = tags.length ? allItems.filter((p) => matchAnyTag(p.tags, tags)) : allItems;
+  const inCategory = allItems.filter(
+    (p) => (p.category ?? "").trim().toLowerCase() === category.trim().toLowerCase()
+  );
+
+  const filtered = tags.length ? inCategory.filter((p) => matchAnyTag(p.tags, tags)) : inCategory;
   const sorted = [...filtered].sort((a, b) => compareByDateDesc(a.date, b.date));
 
   const key = `proj-${category}-${tags.slice().sort().join(",")}`;
@@ -68,7 +45,7 @@ export default async function CategoryProjectsPage({
         </p>
       ) : (
         <section aria-label={`${category} 프로젝트 목록`} className="mt-6 md:mt-7 lg:mt-8">
-          <ProjectsInfiniteListClient key={key} allItems={sorted} pageSize={8} />
+          <PostsInfiniteListClient key={key} allItems={sorted} pageSize={8} basePath="/projects" />
         </section>
       )}
     </main>

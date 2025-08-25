@@ -1,11 +1,10 @@
 import Link from "next/link";
-
 import { listProjects } from "@/lib/api/posts";
 
-import ThemedImage from "../components/Ui/ThemedImage";
-import RecentProjectsList from "../components/HomeComponent/RecentProjectsList";
-import SectionCard from "../components/HomeComponent/SectionCard";
-import SkillsPanel from "../components/HomeComponent/SkillsPanel";
+import ThemedImage from "@/app/components/Ui/ThemedImage";
+import RecentProjectsList from "../components/Home/RecentProjectsList";
+import SectionCard from "../components/Ui/SectionCard";
+import SkillsPanel from "../components/Home/SkillsPanel";
 
 import type { Post } from "@/lib/types";
 
@@ -44,11 +43,11 @@ export default async function SiteHomePage() {
       <section className="py-5 md:py-24">
         <div className="flex flex-col items-center gap-3 md:flex-row md:items-center md:gap-10 lg:gap-20">
           <div className="relative aspect-square w-[120px] md:w-[300px] lg:w-[350px] rounded-full overflow-hidden border-2 border-[var(--color-line)]">
-            <ThemedImage {...heroImageProps} fill priority />
+            <ThemedImage {...heroImageProps} priority />
           </div>
 
           <div className="text-center md:text-left w-full md:w-[600px] lg:w-[900px]">
-            <p className=" text-xl md:text-3xl font-black tracking-tight">Hello, I’m Yuju Jang</p>
+            <p className="text-xl md:text-3xl font-black tracking-tight">Hello, I’m Yuju Jang</p>
             <p className="my-3 lg:my-6 text-sm md:text-base font-semibold leading-6 md:leading-7">
               I am pursuing a degree in Artificial Intelligence at Cheju Halla University. While my
               current focus is on frontend development, I am progressively expanding my expertise
@@ -58,10 +57,11 @@ export default async function SiteHomePage() {
               <Link
                 href="/projects"
                 className="
-                    block rounded-md aurora-inner
-                    px-20 py-2
-                    text-sm md:text-base lg:text-lg font-bold
-                  "
+                  block rounded-md aurora-inner
+                  px-20 py-2
+                  text-sm md:text-base lg:text-lg font-bold
+                "
+                aria-label="프로젝트 목록 보기"
               >
                 View Projects
               </Link>
@@ -90,6 +90,7 @@ export default async function SiteHomePage() {
             <Link
               href="/blogs"
               className="inline-flex items-center gap-1 text-sm md:text-base font-semibold hover:text-[var(--color-brand)]"
+              aria-label="블로그 더 보기"
             >
               Read More <span aria-hidden>&gt;</span>
             </Link>

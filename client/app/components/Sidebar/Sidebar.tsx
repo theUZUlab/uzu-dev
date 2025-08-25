@@ -4,8 +4,9 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 
-import Accordion from "@/app/components/Accordion/Accordion";
-import { listCategories, CategoryStat } from "@/lib/api/meta";
+import Accordion from "../Ui/Accordion/Accordion";
+import { listCategories } from "@/lib/api/meta";
+import { CategoryStat } from "@/lib/types";
 import ThemedIcon from "@/app/components/Ui/ThemedIcon";
 import SupportPanelCompact from "@/app/components/Support/SupportPanelCompact";
 
@@ -137,9 +138,7 @@ export default function Sidebar() {
                   <span
                     className={`inline-flex items-center leading-none text-lg lg:text-xl font-black ${linkColor(
                       "/projects",
-                      {
-                        startsWith: true,
-                      }
+                      { startsWith: true }
                     )}`}
                     aria-current={pathname.startsWith("/projects") ? "page" : undefined}
                   >
@@ -200,9 +199,7 @@ export default function Sidebar() {
                   <span
                     className={`inline-flex items-center leading-none text-lg lg:text-xl font-black ${linkColor(
                       "/blogs",
-                      {
-                        startsWith: true,
-                      }
+                      { startsWith: true }
                     )}`}
                     aria-current={pathname.startsWith("/blogs") ? "page" : undefined}
                   >
@@ -228,22 +225,25 @@ export default function Sidebar() {
                       </Link>
                     </li>
                     {blogCats && blogCats.length > 0 ? (
-                      blogCats.map((c) => (
-                        <li key={c.name}>
-                          <Link
-                            href={{ pathname: "/blogs", query: { category: c.name } }}
-                            onClick={closeSidebar}
-                            className={[
-                              "flex items-center justify-between px-3 py-1 text-sm font-semibold",
-                              linkColor("/blogs", { startsWith: true }),
-                            ].join(" ")}
-                            aria-current={pathname.startsWith("/blogs") ? "page" : undefined}
-                          >
-                            <span>{c.name}</span>
-                            <span className="text-xs text-[var(--color-text)]">{c.count}</span>
-                          </Link>
-                        </li>
-                      ))
+                      blogCats.map((c) => {
+                        const href = `/blogs/${encodeURIComponent(c.name)}`;
+                        return (
+                          <li key={c.name}>
+                            <Link
+                              href={href}
+                              onClick={closeSidebar}
+                              className={[
+                                "flex items-center justify-between px-3 py-1 text-sm font-semibold",
+                                linkColor(href),
+                              ].join(" ")}
+                              aria-current={pathname === href ? "page" : undefined}
+                            >
+                              <span>{c.name}</span>
+                              <span className="text-xs text-[var(--color-text)]">{c.count}</span>
+                            </Link>
+                          </li>
+                        );
+                      })
                     ) : (
                       <li className="px-3 py-1 text-xs text-[var(--color-text)]">카테고리 없음</li>
                     )}

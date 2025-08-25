@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useState, MouseEvent } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 
-import { listTags, TagStat } from "@/lib/api/meta";
+import { listTags,  } from "@/lib/api/meta";
+import { TagStat } from "@/lib/types";
 import { listProjects, listBlogs } from "@/lib/api/posts";
 
 export default function TagTabs({
@@ -36,16 +37,18 @@ export default function TagTabs({
       setLoading(true);
 
       if (category) {
-        // ✅ 카테고리별 태그 집계 시, type에 따라 projects / blogs 분기
         const res =
           type === "project"
-            ? await listProjects({ page: 1, limit: 500, category })
-            : await listBlogs({ page: 1, limit: 500, category });
+            ? await listProjects({ page: 1, limit: 500 })
+            : await listBlogs({ page: 1, limit: 500 });
 
         const items = Array.isArray(res?.items) ? res.items : [];
         const counts = new Map<string, number>();
+        const normalized = category.trim().toLowerCase();
 
         for (const p of items) {
+          const inCat = (p.category ?? "").trim().toLowerCase() === normalized;
+          if (!inCat) continue;
           if (!Array.isArray(p.tags)) continue;
           for (const t of p.tags) {
             const name = (t || "").toString().trim();
@@ -129,12 +132,7 @@ export default function TagTabs({
         </span>
       </button>
 
-      {loading ? (
-        <span className="text-xs text-[var(--color-text)] shrink-0">Loading…</span>
-      ) : tags.length === 0 ? (
-        <span className="text-xs text-[var(--color-text)] shrink-0">태그 없음</span>
-      ) : (
-        tags.map((t) => {
+      {( tags.map((t) => {
           const active = selected.includes(t.name);
           return (
             <button

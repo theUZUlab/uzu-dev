@@ -19,17 +19,15 @@ export default function Accordion({
   const [open, setOpen] = useState(defaultOpen);
   const panelRef = useRef<HTMLDivElement>(null);
 
-  // 높이 전환(접힘/펼침) 부드럽게 처리
   useEffect(() => {
     const el = panelRef.current;
     if (!el) return;
 
-    // 열기: 현재 높이를 실제 스크롤 높이로 설정 → 끝나면 auto로
     if (open) {
+      // 열기 애니메이션
       el.style.height = "auto";
       const target = `${el.scrollHeight}px`;
-      el.style.height = "0px"; // 트리거용 초기값
-      // 다음 프레임에 실제 높이로
+      el.style.height = "0px";
       requestAnimationFrame(() => {
         el.style.height = target;
       });
@@ -40,7 +38,7 @@ export default function Accordion({
       };
       el.addEventListener("transitionend", onEnd);
     } else {
-      // 닫기: 현재 auto면 실제 픽셀값을 넣고 다음 프레임에 0으로
+      // 닫기 애니메이션
       const current = el.scrollHeight;
       el.style.height = `${current}px`;
       requestAnimationFrame(() => {
@@ -50,7 +48,7 @@ export default function Accordion({
   }, [open]);
 
   return (
-    <section>
+    <div>
       <button
         id={btnId}
         type="button"
@@ -64,7 +62,7 @@ export default function Accordion({
         "
       >
         <div className="flex items-center justify-between">
-          <div className="text-left">{title}</div>
+          <span className="text-left">{title}</span>
           <span
             className={[
               "i-lucide-chevron-down transition-transform duration-200",
@@ -80,12 +78,11 @@ export default function Accordion({
         ref={panelRef}
         role="region"
         aria-labelledby={btnId}
-        // 기본 높이 상태(초기 렌더링 시)
         style={{ height: open ? "auto" : 0 }}
         className="overflow-hidden transition-[height] duration-200"
       >
         <div>{children}</div>
       </div>
-    </section>
+    </div>
   );
 }

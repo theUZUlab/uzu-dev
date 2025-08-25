@@ -5,7 +5,8 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 
 import { useSidebar } from "@/app/components/Sidebar/SidebarContext";
-import { listCategories, CategoryStat } from "@/lib/api/meta";
+import { listCategories } from "@/lib/api/meta";
+import { CategoryStat } from "@/lib/types";
 import ThemedIcon from "@/app/components/Ui/ThemedIcon";
 import SupportPanel from "@/app/components/Support/SupportPanel";
 
@@ -110,6 +111,7 @@ export default function Header() {
                 Home
               </Link>
             </li>
+
             {/* Projects hover */}
             <li className="relative group">
               <Link
@@ -178,6 +180,7 @@ export default function Header() {
                 </div>
               </div>
             </li>
+
             {/* Blogs hover */}
             <li className="relative group">
               <Link
@@ -225,7 +228,7 @@ export default function Header() {
                         blogCats.map((c) => (
                           <li key={c.name}>
                             <Link
-                              href={{ pathname: "/blogs", query: { category: c.name } }}
+                              href={`/blogs/${encodeURIComponent(c.name)}`}
                               className="
                                 flex items-center justify-between rounded-md px-5 py-2 lg:text-lg font-bold
                                 text-[var(--color-text)] hover:text-[var(--color-brand)]
@@ -247,6 +250,7 @@ export default function Header() {
                 </div>
               </div>
             </li>
+
             {/* Support hover */}
             <li className="relative group">
               <span
@@ -277,7 +281,7 @@ export default function Header() {
                   <SupportPanel />
                 </div>
               </div>
-            </li>{" "}
+            </li>
           </ul>
         </nav>
 

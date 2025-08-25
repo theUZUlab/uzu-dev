@@ -13,13 +13,9 @@
   --color-muted: rgba(37, 39, 44, 0.5);
   --color-brand: #5950a3;
 
-  /* 폰트 / 라운드 / 간격 */
+  /* 폰트 */
   --font-sans: "Pretendard Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
     "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans", sans-serif;
-  --radius-xl: 1rem;
-  --radius-lg: 0.75rem;
-  --radius-md: 0.5rem;
-  --gap: 20px;
 
   /* 컨테이너 */
   --container-3xl: 80rem;
@@ -38,12 +34,12 @@
   --text-3xl: 2.25rem;
 
   /* Aurora 공용 */
-  --aurora-radius: 10px; /* 외곽 라운드 */
-  --aurora-border: 2px; /* 오로라와 내부 간격 */
-  --aurora-surface: var(--color-panel); /* 내부 배경 */
-  --aurora-speed: 1s; /* 회전 속도 */
-  --aurora-blur: 20px; /* 퍼짐 정도 */
-  --aurora-focus: var(--color-brand); /* 포커스 색 */
+  --aurora-radius: 10px;
+  --aurora-border: 2px;
+  --aurora-surface: var(--color-panel);
+  --aurora-speed: 1s;
+  --aurora-blur: 20px;
+  --aurora-focus: var(--color-brand);
   --aurora-gradient: conic-gradient(
     from 0deg,
     #433a8e,
@@ -67,7 +63,6 @@
     --color-muted: rgba(94, 80, 63, 0.5);
     --color-brand: #e07a5f;
 
-    /* 로즈-샴페인 골드 계열 */
     --aurora-gradient: conic-gradient(
       from 0deg,
       #d4af37,
@@ -121,7 +116,7 @@
   );
 }
 
-/* data-theme 설정시 해당 테마 강제 */
+/* data-theme 강제 */
 :root[data-theme="light"] .theme-dark {
   display: none !important;
 }
@@ -152,13 +147,11 @@ body {
   @apply bg-[var(--color-bg)] text-[var(--color-text)] font-sans antialiased;
 }
 
-/* 가로 스크롤 최적화 */
 .x-scroll {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-x: contain;
 }
 
-/* 스크롤바 숨김 */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
@@ -168,7 +161,7 @@ body {
 }
 
 /* ===========================================================
-  Aurora Frame (버튼/카드 공용)
+  Aurora Frame
 =========================================================== */
 .aurora-frame {
   position: relative;
@@ -202,8 +195,6 @@ body {
   border-radius: calc(var(--aurora-radius) - var(--aurora-border));
   background: var(--aurora-surface);
 }
-
-/* Aurora 회전 */
 @keyframes spin {
   to {
     transform: rotate(360deg);
@@ -211,7 +202,7 @@ body {
 }
 
 /* ===========================================================
-  Markdown Body (Tailwind Typography 없이)
+  Markdown Body
 =========================================================== */
 .md-body {
   color: var(--color-text);
@@ -229,8 +220,6 @@ body {
     font-size: 1.125rem;
   }
 }
-
-/* 헤딩 */
 .md-body h1,
 .md-body h2,
 .md-body h3,
@@ -262,27 +251,16 @@ body {
   font-size: 0.875rem;
   opacity: 0.85;
 }
-
-/* 문단 & 리스트 간격 */
 .md-body p {
   margin: 0.5em 0;
 }
-
 .md-body ul,
 .md-body ol {
   margin: 0.7em 0;
   padding-left: 1.4em;
 }
-.md-body li {
-  margin: 0;
-}
 .md-body li + li {
   margin-top: 0.5em;
-}
-.md-body li > ul,
-.md-body li > ol {
-  margin-top: 0em;
-  margin-bottom: 0em;
 }
 .md-body ul {
   list-style: disc;
@@ -290,8 +268,6 @@ body {
 .md-body ol {
   list-style: decimal;
 }
-
-/* 인라인 */
 .md-body strong {
   font-weight: 800;
 }
@@ -306,29 +282,6 @@ body {
 .md-body a:hover {
   opacity: 0.95;
 }
-
-/* 코드/표 */
-.md-body code,
-.md-body pre,
-.md-body table {
-  font-size: 0.8125rem;
-}
-@media (min-width: 768px) {
-  .md-body code,
-  .md-body pre,
-  .md-body table {
-    font-size: 0.9375rem;
-  }
-}
-@media (min-width: 1024px) {
-  .md-body code,
-  .md-body pre,
-  .md-body table {
-    font-size: 1rem;
-  }
-}
-
-/* 코드 블럭 */
 .md-body code {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
   background: color-mix(in oklab, var(--color-panel) 92%, var(--color-text) 8%);
@@ -347,8 +300,6 @@ body {
   background: transparent;
   padding: 0;
 }
-
-/* 인용문 */
 .md-body blockquote {
   margin: 1.1em 0;
   padding: 0.6em 1.1em;
@@ -356,8 +307,6 @@ body {
   background: color-mix(in oklab, var(--color-panel) 94%, var(--color-text) 6%);
   border-radius: var(--radius-md);
 }
-
-/* 표 */
 .md-body table {
   width: 100%;
   border-collapse: collapse;
@@ -373,8 +322,6 @@ body {
   background: color-mix(in oklab, var(--color-panel) 92%, var(--color-text) 8%);
   font-weight: 800;
 }
-
-/* 이미지 */
 .md-body img {
   max-width: 100%;
   height: auto;
@@ -382,15 +329,11 @@ body {
   display: block;
   margin: 1rem auto;
 }
-
-/* 구분선 */
 .md-body hr {
   border: 0;
   border-top: 1px solid var(--color-line);
   margin: 2rem 0;
 }
-
-/* 첫/마지막 여백 제거 */
 .md-body > *:first-child {
   margin-top: 0;
 }

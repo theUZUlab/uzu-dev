@@ -1,8 +1,9 @@
-// eslint.config.js
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 
 import { FlatCompat } from "@eslint/eslintrc";
+import tseslint from "@typescript-eslint/eslint-plugin";
+import importPlugin from "eslint-plugin-import";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -11,7 +12,7 @@ const compat = new FlatCompat({ baseDirectory: __dirname });
 
 const config = [
   // Next 권장 설정 + TS
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+  ...compat.extends("next/core-web-vitals", "next/typescript", "prettier"),
 
   // 무시 경로
   {
@@ -22,14 +23,18 @@ const config = [
       "build/**",
       "dist/**",
       "coverage/**",
-      "next-env.d.ts",
-    ],
+      "next-env.d.ts"
+    ]
   },
 
-  // 규칙 커스터마이즈
+  // 규칙/플러그인
   {
+    plugins: {
+      "@typescript-eslint": tseslint,
+      import: importPlugin
+    },
     rules: {
-      // 기본 JS 규칙은 끄고, TS 전용 규칙을 사용 (중복 경고 방지)
+      // 기본 JS 규칙 비활성화 → TS 전용 사용
       "no-unused-vars": "off",
 
       // _ 프리픽스면 미사용 인자/변수/에러 허용
@@ -38,12 +43,13 @@ const config = [
         {
           argsIgnorePattern: "^_",
           varsIgnorePattern: "^_",
-          caughtErrorsIgnorePattern: "^_",
-        },
+          caughtErrorsIgnorePattern: "^_"
+        }
       ],
 
       "no-console": ["warn", { allow: ["warn", "error"] }],
 
+      // import 정렬
       "import/order": [
         "warn",
         {
@@ -54,12 +60,12 @@ const config = [
             "internal",
             ["parent", "sibling", "index"],
             "object",
-            "type",
-          ],
-        },
-      ],
-    },
-  },
+            "type"
+          ]
+        }
+      ]
+    }
+  }
 ];
 
 export default config;

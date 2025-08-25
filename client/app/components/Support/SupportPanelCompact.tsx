@@ -1,16 +1,40 @@
 "use client";
 
+import { useEffect, useRef } from "react";
+
 export default function SupportPanelCompact() {
+  const regionRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    // 필요 시 첫 탭 이동 시 영역으로 포커스 유도
+    regionRef.current?.setAttribute("tabindex", "-1");
+  }, []);
+
+  const titleId = "support-panel-compact-title";
+  const descId = "support-panel-compact-desc";
+
   return (
-    <div className="rounded-2xl mt-4" role="region" aria-label="Support panel (compact)">
+    <div
+      ref={regionRef}
+      role="region"
+      aria-labelledby={titleId}
+      aria-describedby={descId}
+      className="rounded-2xl mt-4"
+    >
       {/* 상단 메시지 */}
       <div className="text-center">
-        <p className="text-lg font-black text-[var(--color-text)] tracking-tight">
+        <h3
+          id={titleId}
+          className="text-lg font-black text-[var(--color-text)] tracking-tight"
+        >
           따뜻한 관심과 응원에
           <br />
           감사드립니다.
-        </p>
-        <p className="mt-2 text-sm font-semibold text-[var(--color-text)] opacity-80 leading-relaxed">
+        </h3>
+        <p
+          id={descId}
+          className="mt-2 text-sm font-semibold text-[var(--color-text)]/80 leading-relaxed"
+        >
           여러분의 후원은 제가 프로젝트를 꾸준히 개발하고, 학습 자료와 경험을 나누는 데 큰 힘이
           됩니다.
         </p>
@@ -21,7 +45,7 @@ export default function SupportPanelCompact() {
         <div
           className="
             w-full max-w-[220px] relative rounded-[var(--radius-xl)] p-0.5
-            transition-colors aurora-frame
+            aurora-frame transition-colors motion-reduce:[animation:none]
           "
         >
           <a
@@ -30,7 +54,7 @@ export default function SupportPanelCompact() {
             rel="noopener noreferrer"
             className="
               flex items-center justify-center gap-2
-              bg-[var(--color-panel)] aurora-inner
+              aurora-inner bg-[var(--color-panel)]
               rounded-[var(--radius-lg)]
               px-4 py-2 font-bold
               hover:text-[var(--color-brand)]

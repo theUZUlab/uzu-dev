@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
+import Image from "next/image";
 
 type IconSrcSet = { base: string; hover?: string; focus?: string };
 
@@ -16,6 +16,8 @@ type Props = {
   dark: IconSrcSet;
   priority?: boolean;
   decorative?: boolean;
+  /** fill 사용 시 권장. 미지정 시 100vw */
+  sizes?: string;
 };
 
 export default function ThemedIcon({
@@ -29,42 +31,35 @@ export default function ThemedIcon({
   dark,
   priority = false,
   decorative = false,
+  sizes = "100vw",
 }: Props) {
+  const content = (
+    <InnerIcon
+      alt={alt}
+      width={width}
+      height={height}
+      className={className}
+      light={light}
+      dark={dark}
+      priority={priority}
+      decorative={decorative}
+      sizes={sizes}
+    />
+  );
+
   if (href) {
     return (
       <Link
         href={href}
-        aria-label={alt}
+        aria-label={decorative ? undefined : alt}
         className={["inline-flex items-center", wrapperClassName].filter(Boolean).join(" ")}
       >
-        <InnerIcon
-          alt={alt}
-          width={width}
-          height={height}
-          className={className}
-          light={light}
-          dark={dark}
-          priority={priority}
-          decorative={decorative}
-        />
+        {content}
       </Link>
     );
   }
 
-  return (
-    <span className={wrapperClassName}>
-      <InnerIcon
-        alt={alt}
-        width={width}
-        height={height}
-        className={className}
-        light={light}
-        dark={dark}
-        priority={priority}
-        decorative={decorative}
-      />
-    </span>
-  );
+  return <span className={wrapperClassName}>{content}</span>;
 }
 
 /* 내부 렌더 전용 컴포넌트 */
@@ -77,31 +72,28 @@ function InnerIcon({
   dark,
   priority,
   decorative,
+  sizes,
 }: Omit<Props, "href" | "wrapperClassName">) {
+  const ariaHidden = decorative ? true : undefined;
+
   return (
     <span
       className={["relative inline-flex items-center justify-center outline-none group", className]
         .filter(Boolean)
         .join(" ")}
       style={{ width, height }}
+      aria-hidden={ariaHidden}
     >
       {/* ---------- Light ---------- */}
       <Image
         src={light.base}
         alt={decorative ? "" : alt}
-        aria-hidden={decorative || undefined}
         fill
         priority={priority}
         loading={priority ? undefined : "lazy"}
         decoding={priority ? undefined : "async"}
-        className="
-          theme-light
-          opacity-100 group-hover:opacity-0 group-focus:opacity-0
-          transition-opacity
-          select-none pointer-events-none
-          object-contain
-        "
-        sizes={`${width}px`}
+        sizes={sizes}
+        className="theme-light opacity-100 group-hover:opacity-0 group-focus:opacity-0 transition-opacity select-none pointer-events-none object-contain"
       />
       {light.hover && (
         <Image
@@ -109,14 +101,8 @@ function InnerIcon({
           alt=""
           aria-hidden
           fill
-          className="
-            theme-light
-            opacity-0 group-hover:opacity-100 group-focus:opacity-0
-            transition-opacity
-            select-none pointer-events-none
-            object-contain
-          "
-          sizes={`${width}px`}
+          sizes={sizes}
+          className="theme-light opacity-0 group-hover:opacity-100 group-focus:opacity-0 transition-opacity select-none pointer-events-none object-contain"
         />
       )}
       {light.focus && (
@@ -125,14 +111,8 @@ function InnerIcon({
           alt=""
           aria-hidden
           fill
-          className="
-            theme-light
-            opacity-0 group-focus:opacity-100
-            transition-opacity
-            select-none pointer-events-none
-            object-contain
-          "
-          sizes={`${width}px`}
+          sizes={sizes}
+          className="theme-light opacity-0 group-focus:opacity-100 transition-opacity select-none pointer-events-none object-contain"
         />
       )}
 
@@ -140,19 +120,12 @@ function InnerIcon({
       <Image
         src={dark.base}
         alt={decorative ? "" : alt}
-        aria-hidden={decorative || undefined}
         fill
         priority={priority}
         loading={priority ? undefined : "lazy"}
         decoding={priority ? undefined : "async"}
-        className="
-          theme-dark
-          opacity-100 group-hover:opacity-0 group-focus:opacity-0
-          transition-opacity
-          select-none pointer-events-none
-          object-contain
-        "
-        sizes={`${width}px`}
+        sizes={sizes}
+        className="theme-dark opacity-100 group-hover:opacity-0 group-focus:opacity-0 transition-opacity select-none pointer-events-none object-contain"
       />
       {dark.hover && (
         <Image
@@ -160,14 +133,8 @@ function InnerIcon({
           alt=""
           aria-hidden
           fill
-          className="
-            theme-dark
-            opacity-0 group-hover:opacity-100 group-focus:opacity-0
-            transition-opacity
-            select-none pointer-events-none
-            object-contain
-          "
-          sizes={`${width}px`}
+          sizes={sizes}
+          className="theme-dark opacity-0 group-hover:opacity-100 group-focus:opacity-0 transition-opacity select-none pointer-events-none object-contain"
         />
       )}
       {dark.focus && (
@@ -176,14 +143,8 @@ function InnerIcon({
           alt=""
           aria-hidden
           fill
-          className="
-            theme-dark
-            opacity-0 group-focus:opacity-100
-            transition-opacity
-            select-none pointer-events-none
-            object-contain
-          "
-          sizes={`${width}px`}
+          sizes={sizes}
+          className="theme-dark opacity-0 group-focus:opacity-100 transition-opacity select-none pointer-events-none object-contain"
         />
       )}
     </span>

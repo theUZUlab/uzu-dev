@@ -31,8 +31,13 @@ async function forward(req: NextRequest, segs: string[]) {
   const res = await fetch(target, init);
   const buf = await res.arrayBuffer();
 
+  const outHeaders = new Headers();
   const contentType = res.headers.get("content-type") ?? "application/json; charset=utf-8";
-  return new NextResponse(buf, { status: res.status, headers: { "content-type": contentType } });
+  outHeaders.set("content-type", contentType);
+  const cacheControl = res.headers.get("cache-control");
+  if (cacheControl) outHeaders.set("cache-control", cacheControl);
+
+  return new NextResponse(buf, { status: res.status, headers: outHeaders });
 }
 
 type Ctx = { params: Promise<{ all: string[] }> };

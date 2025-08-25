@@ -32,16 +32,13 @@ export default function Footer() {
         "
       >
         {/* 로고 */}
-        <div className="shrink-0">
-          {/* 모바일 (< md) */}
+        <div className="shrink-0" aria-hidden>
           <span className="block md:hidden">
-            <ThemedIcon {...logoProps} width={60} height={45} />
+            <ThemedIcon {...logoProps} width={60} height={45} sizes="60px" decorative />
           </span>
-          {/* 태블릿 (md ~ lg) */}
           <span className="hidden md:block lg:hidden">
-            <ThemedIcon {...logoProps} width={80} height={58} />
+            <ThemedIcon {...logoProps} width={80} height={58} sizes="80px" decorative />
           </span>
-          {/* 데스크톱 (lg 이상) */}
           <span className="hidden lg:block">
             <ThemedIcon {...logoProps} width={95} height={68} />
           </span>
@@ -71,7 +68,7 @@ export default function Footer() {
             </a>
           </p>
 
-          <p className="text-xs lg:text-base mt-1 md:mt-3 text-[var(--color-text)]">
+        <p className="text-xs lg:text-base mt-1 md:mt-3 text-[var(--color-text)]">
             © {year} UZU! All rights reserved.
           </p>
         </div>
