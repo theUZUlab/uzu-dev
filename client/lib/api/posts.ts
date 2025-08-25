@@ -1,5 +1,14 @@
-import { buildUrl, getJSON, normalizeItem, normalizeList } from "@/lib/http";
-import type { Post, ListResponse } from "@/lib/types";
+import {
+  buildUrl,
+  getJSON,
+  normalizeItem,
+  normalizeList,
+  type BackendItem,
+  type BackendList,
+  type ListResponse,
+} from "@/lib/http";
+
+import type { Post } from "@/lib/types";
 
 /* =========================
    Projects
@@ -21,14 +30,14 @@ export async function listProjects(params?: {
     tags: params?.tags?.length ? params.tags.join(",") : undefined,
   });
 
-  const raw = await getJSON<any>(url, params?.revalidateSec ?? 60);
+  const raw = await getJSON<BackendList<Post>>(url, params?.revalidateSec ?? 60);
   return normalizeList<Post>(raw);
 }
 
 export async function getProjectById(id: string, opts?: { revalidateSec?: number }): Promise<Post> {
   const safeId = encodeURIComponent(id);
   const url = buildUrl(`/api/posts/${safeId}`);
-  const raw = await getJSON<any>(url, opts?.revalidateSec ?? 60);
+  const raw = await getJSON<BackendItem<Post>>(url, opts?.revalidateSec ?? 60);
   return normalizeItem<Post>(raw);
 }
 
@@ -52,13 +61,13 @@ export async function listBlogs(params?: {
     tags: params?.tags?.length ? params.tags.join(",") : undefined,
   });
 
-  const raw = await getJSON<any>(url, params?.revalidateSec ?? 60);
+  const raw = await getJSON<BackendList<Post>>(url, params?.revalidateSec ?? 60);
   return normalizeList<Post>(raw);
 }
 
 export async function getBlogById(id: string, opts?: { revalidateSec?: number }): Promise<Post> {
   const safeId = encodeURIComponent(id);
   const url = buildUrl(`/api/posts/${safeId}`);
-  const raw = await getJSON<any>(url, opts?.revalidateSec ?? 60);
+  const raw = await getJSON<BackendItem<Post>>(url, opts?.revalidateSec ?? 60);
   return normalizeItem<Post>(raw);
 }

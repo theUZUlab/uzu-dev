@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState, MouseEvent } from "react";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { MouseEvent, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-import { listTags,  } from "@/lib/api/meta";
+import { listBlogs, listProjects } from "@/lib/api/posts";
+import { listTags } from "@/lib/api/meta";
 import { TagStat } from "@/lib/types";
-import { listProjects, listBlogs } from "@/lib/api/posts";
 
 export default function TagTabs({
   type = "project",
@@ -19,7 +19,7 @@ export default function TagTabs({
   const sp = useSearchParams();
 
   const [tags, setTags] = useState<TagStat[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [_loading, _setLoading] = useState(true); // 경고 제거용(현재 UI에서 loading 미사용)
 
   const selected = useMemo(
     () =>
@@ -34,21 +34,18 @@ export default function TagTabs({
   useEffect(() => {
     let alive = true;
     (async () => {
-      setLoading(true);
+      _setLoading(true);
 
       if (category) {
         const res =
           type === "project"
-            ? await listProjects({ page: 1, limit: 500 })
-            : await listBlogs({ page: 1, limit: 500 });
+            ? await listProjects({ page: 1, limit: 500, category })
+            : await listBlogs({ page: 1, limit: 500, category });
 
         const items = Array.isArray(res?.items) ? res.items : [];
         const counts = new Map<string, number>();
-        const normalized = category.trim().toLowerCase();
 
         for (const p of items) {
-          const inCat = (p.category ?? "").trim().toLowerCase() === normalized;
-          if (!inCat) continue;
           if (!Array.isArray(p.tags)) continue;
           for (const t of p.tags) {
             const name = (t || "").toString().trim();
@@ -62,12 +59,11 @@ export default function TagTabs({
         );
         if (alive) setTags(list);
       } else {
-        // 전체 태그는 백엔드 메타 API 사용
         const data = await listTags(type, { limit: 200 });
         if (alive) setTags(data);
       }
 
-      if (alive) setLoading(false);
+      if (alive) _setLoading(false);
     })();
 
     return () => {
@@ -93,11 +89,8 @@ export default function TagTabs({
       return;
     }
 
-    if (selected.length === 1 && selected[0] === name) {
-      apply([]);
-    } else {
-      apply([name]);
-    }
+    if (selected.length === 1 && selected[0] === name) apply([]);
+    else apply([name]);
   };
 
   const clearAll = () => apply([]);
@@ -132,7 +125,10 @@ export default function TagTabs({
         </span>
       </button>
 
-      {( tags.map((t) => {
+      {tags.length === 0 ? (
+        <span className="text-xs text-[var(--color-text)] shrink-0">태그 없음</span>
+      ) : (
+        tags.map((t) => {
           const active = selected.includes(t.name);
           return (
             <button
