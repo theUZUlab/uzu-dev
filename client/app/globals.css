@@ -1,0 +1,342 @@
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css");
+@import "tailwindcss";
+
+/* ===========================================================
+  Theme: 디자인 토큰 정의 (기본 = 다크 모드)
+=========================================================== */
+@theme {
+  /* 색상 */
+  --color-bg: #111319;
+  --color-panel: #1a1c22;
+  --color-line: #25272c;
+  --color-text: #d4d1d6;
+  --color-muted: rgba(37, 39, 44, 0.5);
+  --color-brand: #5950a3;
+
+  /* 폰트 */
+  --font-sans: "Pretendard Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans", sans-serif;
+
+  /* 컨테이너 */
+  --container-3xl: 80rem;
+  --container-2xl: 72rem;
+  --container-xl: 64rem;
+  --container-lg: 56rem;
+  --container-md: 48rem;
+
+  /* 타이포 스케일 */
+  --text-xs: 0.875rem;
+  --text-sm: 1rem;
+  --text-base: 1.125rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 2rem;
+  --text-3xl: 2.25rem;
+
+  /* Aurora 공용 */
+  --aurora-radius: 10px;
+  --aurora-border: 2px;
+  --aurora-surface: var(--color-panel);
+  --aurora-speed: 1s;
+  --aurora-blur: 20px;
+  --aurora-focus: var(--color-brand);
+  --aurora-gradient: conic-gradient(
+    from 0deg,
+    #433a8e,
+    #5950a3,
+    #776fba,
+    #9891ca,
+    #c0bce1,
+    #433a8e
+  );
+}
+
+/* ===========================================================
+  Light Mode Override
+=========================================================== */
+@media (prefers-color-scheme: light) {
+  :root {
+    --color-bg: #f5f5f5;
+    --color-panel: #ffffff;
+    --color-line: #dee0da;
+    --color-text: #5e503f;
+    --color-muted: rgba(94, 80, 63, 0.5);
+    --color-brand: #e07a5f;
+
+    --aurora-gradient: conic-gradient(
+      from 0deg,
+      #d4af37,
+      #e6c26b,
+      #f9d8c1,
+      #e07a5f,
+      #c06b53,
+      #d4af37
+    );
+  }
+}
+
+/* ===========================================================
+  Manual Theme Override (data-theme 우선)
+=========================================================== */
+:root[data-theme="dark"] {
+  --color-bg: #111319;
+  --color-panel: #1a1c22;
+  --color-line: #25272c;
+  --color-text: #d4d1d6;
+  --color-muted: rgba(37, 39, 44, 0.5);
+  --color-brand: #5950a3;
+
+  --aurora-gradient: conic-gradient(
+    from 0deg,
+    #433a8e,
+    #5950a3,
+    #776fba,
+    #9891ca,
+    #c0bce1,
+    #433a8e
+  );
+}
+
+:root[data-theme="light"] {
+  --color-bg: #f5f5f5;
+  --color-panel: #ffffff;
+  --color-line: #dee0da;
+  --color-text: #5e503f;
+  --color-muted: rgba(94, 80, 63, 0.5);
+  --color-brand: #e07a5f;
+
+  --aurora-gradient: conic-gradient(
+    from 0deg,
+    #d4af37,
+    #e6c26b,
+    #f9d8c1,
+    #e07a5f,
+    #c06b53,
+    #d4af37
+  );
+}
+
+/* data-theme 강제 */
+:root[data-theme="light"] .theme-dark {
+  display: none !important;
+}
+:root[data-theme="dark"] .theme-light {
+  display: none !important;
+}
+
+/* 시스템 선호도 (data-theme 미사용 시) */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .theme-light {
+    display: none !important;
+  }
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) .theme-dark {
+    display: none !important;
+  }
+}
+
+/* ===========================================================
+  Base Reset
+=========================================================== */
+html,
+body {
+  height: 100%;
+}
+body {
+  @apply bg-[var(--color-bg)] text-[var(--color-text)] font-sans antialiased;
+}
+
+.x-scroll {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ===========================================================
+  Aurora Frame
+=========================================================== */
+.aurora-frame {
+  position: relative;
+  border-radius: var(--aurora-radius);
+  overflow: hidden;
+  isolation: isolate;
+}
+.aurora-frame::before {
+  content: "";
+  position: absolute;
+  inset: -1000%;
+  background: var(--aurora-gradient);
+  filter: blur(var(--aurora-blur)) saturate(120%);
+  animation: spin var(--aurora-speed) linear infinite;
+  will-change: transform;
+  opacity: 0;
+  transition: opacity 0.3s ease, background 0.3s ease;
+}
+.aurora-frame:hover::before {
+  opacity: 1;
+}
+.aurora-frame:focus::before {
+  opacity: 1;
+  background: var(--aurora-focus);
+  filter: none;
+  animation: none;
+}
+.aurora-inner {
+  position: relative;
+  z-index: 1;
+  border-radius: calc(var(--aurora-radius) - var(--aurora-border));
+  background: var(--aurora-surface);
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ===========================================================
+  Markdown Body
+=========================================================== */
+.md-body {
+  color: var(--color-text);
+  line-height: 1.75;
+  font-size: 0.875rem;
+  max-width: none;
+}
+@media (min-width: 768px) {
+  .md-body {
+    font-size: 1rem;
+  }
+}
+@media (min-width: 1024px) {
+  .md-body {
+    font-size: 1.125rem;
+  }
+}
+.md-body h1,
+.md-body h2,
+.md-body h3,
+.md-body h4,
+.md-body h5,
+.md-body h6 {
+  font-weight: 900;
+  line-height: 1.25;
+  margin-top: 1.6em;
+  margin-bottom: 1.1em;
+  color: var(--color-text);
+}
+.md-body h1 {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+}
+.md-body h2 {
+  font-size: clamp(1.35rem, 2.5vw, 1.8rem);
+}
+.md-body h3 {
+  font-size: clamp(1.2rem, 2vw, 1.6rem);
+}
+.md-body h4 {
+  font-size: 1.125rem;
+}
+.md-body h5 {
+  font-size: 1rem;
+}
+.md-body h6 {
+  font-size: 0.875rem;
+  opacity: 0.85;
+}
+.md-body p {
+  margin: 0.5em 0;
+}
+.md-body ul,
+.md-body ol {
+  margin: 0.7em 0;
+  padding-left: 1.4em;
+}
+.md-body li + li {
+  margin-top: 0.5em;
+}
+.md-body ul {
+  list-style: disc;
+}
+.md-body ol {
+  list-style: decimal;
+}
+.md-body strong {
+  font-weight: 800;
+}
+.md-body em {
+  font-style: italic;
+}
+.md-body a {
+  color: var(--color-brand);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.md-body a:hover {
+  opacity: 0.95;
+}
+.md-body code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  background: color-mix(in oklab, var(--color-panel) 92%, var(--color-text) 8%);
+  padding: 0.15em 0.35em;
+  border-radius: 0.35em;
+}
+.md-body pre {
+  background: var(--color-panel);
+  border: 1px solid var(--color-line);
+  padding: 1rem;
+  border-radius: var(--radius-lg);
+  overflow: auto;
+  margin: 1.1em 0;
+}
+.md-body pre code {
+  background: transparent;
+  padding: 0;
+}
+.md-body blockquote {
+  margin: 1.1em 0;
+  padding: 0.6em 1.1em;
+  border-left: 4px solid var(--color-brand);
+  background: color-mix(in oklab, var(--color-panel) 94%, var(--color-text) 6%);
+  border-radius: var(--radius-md);
+}
+.md-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.1em 0;
+}
+.md-body th,
+.md-body td {
+  border: 1px solid var(--color-line);
+  padding: 0.6em 0.75em;
+  vertical-align: top;
+}
+.md-body thead th {
+  background: color-mix(in oklab, var(--color-panel) 92%, var(--color-text) 8%);
+  font-weight: 800;
+}
+.md-body img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-md);
+  display: block;
+  margin: 1rem auto;
+}
+.md-body hr {
+  border: 0;
+  border-top: 1px solid var(--color-line);
+  margin: 2rem 0;
+}
+.md-body > *:first-child {
+  margin-top: 0;
+}
+.md-body > *:last-child {
+  margin-bottom: 0;
+}
