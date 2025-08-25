@@ -3,6 +3,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
+type LoadResult<T> = { items: T[]; total: number };
+
 export function useInfiniteScroll<T>({
   initialItems,
   total,
@@ -10,23 +12,32 @@ export function useInfiniteScroll<T>({
 }: {
   initialItems: T[];
   total: number;
-  // _ 프리픽스: 타입 위치의 매개변수 이름에도 적용
-  loadMore: (_nextPage: number) => Promise<{ items: T[]; total: number }>;
+  loadMore: (nextPage: number) => Promise<LoadResult<T>>;
 }) {
   const [items, setItems] = useState<T[]>(initialItems);
-  const [page, setPage] = useState(1); // 1페이지 로드 완료
+  const [page, setPage] = useState(1); // SSR로 1페이지 로드됨
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const hasNext = items.length < total;
+
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const lockRef = useRef(false);
 
-  // 최신 loadMore 참조 유지
+  // 최신 loadMore 유지
   const loadMoreRef = useRef(loadMore);
   useEffect(() => {
     loadMoreRef.current = loadMore;
   }, [loadMore]);
+
+  // initialItems / total 변경 시 상태 리셋
+  useEffect(() => {
+    setItems(initialItems);
+    setPage(1);
+    setError(null);
+    lockRef.current = false;
+    setLoading(false);
+  }, [initialItems, total]);
 
   const fetchNext = useCallback(async () => {
     if (!hasNext || loading || lockRef.current) return;

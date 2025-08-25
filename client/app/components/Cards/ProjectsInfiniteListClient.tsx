@@ -1,9 +1,9 @@
+// app/components/lists/ProjectsInfiniteListClient.tsx
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import Link from "next/link";
 
-import { listProjects } from "@/lib/api/posts";
 import Card from "@/app/components/Cards/Card";
 
 import InfiniteList from "./InfiniteList";
@@ -11,31 +11,25 @@ import InfiniteList from "./InfiniteList";
 import type { Post } from "@/lib/types";
 
 type Props = {
-  initialItems: Post[];
-  total: number;
+  /** 필터/정렬까지 끝난 전체 배열 */
+  allItems: Post[];
   pageSize?: number; // 기본 8
-  category?: string;
-  tags?: string[];
 };
 
-export default function ProjectsInfiniteListClient({
-  initialItems,
-  total,
-  pageSize = 8,
-  category,
-  tags,
-}: Props) {
+export default function ProjectsInfiniteListClient({ allItems, pageSize = 8 }: Props) {
+  // 첫 페이지 아이템
+  const initialItems = useMemo(() => allItems.slice(0, pageSize), [allItems, pageSize]);
+  const total = allItems.length;
+
+  // 클라에서 정적 배열을 슬라이싱해서 페이징
   const loadMore = useCallback(
     async (nextPage: number) => {
-      const res = await listProjects({
-        page: nextPage, // ✅ 훅에서 받은 페이지 사용
-        limit: pageSize,
-        category,
-        tags,
-      });
-      return { items: res.items, total: res.total };
+      const start = (nextPage - 1) * pageSize;
+      const end = start + pageSize;
+      const chunk = allItems.slice(start, end);
+      return { items: chunk, total };
     },
-    [pageSize, category, tags]
+    [allItems, pageSize, total]
   );
 
   const renderItem = (p: Post) => (
@@ -55,9 +49,10 @@ export default function ProjectsInfiniteListClient({
       initialItems={initialItems}
       total={total}
       loadMore={loadMore}
-      className="flex flex-col gap-4 md:gap-5 lg:gap-6"
-      getKey={(p) => p.id}
       renderItem={renderItem}
+      getKey={(p) => p.id}
+      className="flex flex-col gap-4 md:gap-5 lg:gap-6"
+      errorPrefix="프로젝트 불러오기 실패:"
     />
   );
 }
