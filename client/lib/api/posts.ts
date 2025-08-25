@@ -5,10 +5,9 @@ import {
   normalizeList,
   type BackendItem,
   type BackendList,
-  type ListResponse,
 } from "@/lib/http";
-
 import type { Post } from "@/lib/types";
+import type { ListResponse } from "@/lib/types";
 
 /* =========================
    Projects
@@ -18,7 +17,7 @@ export async function listProjects(params?: {
   page?: number;
   limit?: number;
   category?: string;
-  tags?: string[]; // OR 조건: 콤마로 조인해 전달
+  tags?: string[]; // OR 조건
   revalidateSec?: number;
 }): Promise<ListResponse<Post>> {
   const url = buildUrl("/api/posts", {
@@ -27,7 +26,7 @@ export async function listProjects(params?: {
     page: params?.page ?? 1,
     limit: params?.limit ?? 20,
     category: params?.category,
-    tags: params?.tags?.length ? params.tags.join(",") : undefined,
+    tags: params?.tags && params.tags.length ? params.tags.join(",") : undefined,
   });
 
   const raw = await getJSON<BackendList<Post>>(url, params?.revalidateSec ?? 60);
@@ -49,7 +48,7 @@ export async function listBlogs(params?: {
   page?: number;
   limit?: number;
   category?: string;
-  tags?: string[]; // OR 조건: 콤마로 조인해 전달
+  tags?: string[]; // OR 조건
   revalidateSec?: number;
 }): Promise<ListResponse<Post>> {
   const url = buildUrl("/api/posts", {
@@ -58,7 +57,7 @@ export async function listBlogs(params?: {
     page: params?.page ?? 1,
     limit: params?.limit ?? 20,
     category: params?.category,
-    tags: params?.tags?.length ? params.tags.join(",") : undefined,
+    tags: params?.tags && params.tags.length ? params.tags.join(",") : undefined,
   });
 
   const raw = await getJSON<BackendList<Post>>(url, params?.revalidateSec ?? 60);
