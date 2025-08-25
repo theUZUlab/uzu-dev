@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { useSidebar } from "@/app/components/Sidebar/SidebarContext";
 import { listCategories, CategoryStat } from "@/lib/api/meta";
 import ThemedIcon from "@/app/components/Ui/ThemedIcon";
+import SupportPanel from "@/app/components/Support/SupportPanel";
 
 export default function Header() {
   const { openSidebar } = useSidebar();
@@ -109,7 +110,6 @@ export default function Header() {
                 Home
               </Link>
             </li>
-
             {/* Projects hover */}
             <li className="relative group">
               <Link
@@ -152,7 +152,6 @@ export default function Header() {
                         </Link>
                       </li>
 
-                      {/* 카테고리들 (세그먼트 링크) */}
                       {projCats && projCats.length > 0 ? (
                         projCats.map((c) => (
                           <li key={c.name}>
@@ -179,7 +178,6 @@ export default function Header() {
                 </div>
               </div>
             </li>
-
             {/* Blogs hover */}
             <li className="relative group">
               <Link
@@ -249,16 +247,37 @@ export default function Header() {
                 </div>
               </div>
             </li>
-
-            <li>
-              <Link
-                href="/support"
-                className={linkCls("/support")}
-                aria-current={isActive("/support") ? "page" : undefined}
+            {/* Support hover */}
+            <li className="relative group">
+              <span
+                role="button"
+                tabIndex={0}
+                className={`${linkCls("/support")} cursor-pointer select-none`}
+                aria-haspopup="dialog"
+                aria-expanded="false"
+                aria-controls="support-popover"
               >
                 Support
-              </Link>
-            </li>
+              </span>
+
+              <div
+                id="support-popover"
+                className="
+                  absolute top-full right-0 z-50
+                  opacity-0 translate-y-0
+                  transition-[opacity] duration-150
+                  pointer-events-none
+                  group-hover:opacity-100 group-hover:pointer-events-auto
+                  group-focus-within:opacity-100 group-focus-within:pointer-events-auto
+                "
+                role="dialog"
+                aria-label="Support panel"
+              >
+                <div className="pt-3 md:pt-4 lg:pt-5">
+                  <SupportPanel />
+                </div>
+              </div>
+            </li>{" "}
           </ul>
         </nav>
 

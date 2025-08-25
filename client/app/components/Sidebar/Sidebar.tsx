@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import Accordion from "@/app/components/Accordion/Accordion";
 import { listCategories, CategoryStat } from "@/lib/api/meta";
 import ThemedIcon from "@/app/components/Ui/ThemedIcon";
+import SupportPanelCompact from "@/app/components/Support/SupportPanelCompact";
 
 import { useSidebar } from "./SidebarContext";
 
@@ -57,6 +58,7 @@ export default function Sidebar() {
       <div
         role="presentation"
         aria-hidden={!open}
+        tabIndex={-1}
         onClick={closeSidebar}
         className={[
           "fixed inset-0 z-50 bg-black/50 backdrop-blur-sm transition-opacity duration-200",
@@ -252,16 +254,21 @@ export default function Sidebar() {
 
             {/* Support */}
             <li className="leading-none">
-              <Link
-                href="/support"
-                onClick={closeSidebar}
-                className={`inline-flex items-center leading-none py-2 text-lg lg:text-xl font-black ${linkColor(
-                  "/support"
-                )}`}
-                aria-current={pathname === "/support" ? "page" : undefined}
+              <Accordion
+                title={
+                  <span
+                    className={`
+                      inline-flex items-center leading-none text-lg lg:text-xl font-black
+                      ${linkColor("/support")} cursor-pointer
+                    `}
+                    aria-current={pathname === "/support" ? "page" : undefined}
+                  >
+                    Support
+                  </span>
+                }
               >
-                Support
-              </Link>
+                <SupportPanelCompact />
+              </Accordion>
             </li>
           </ul>
         </nav>
