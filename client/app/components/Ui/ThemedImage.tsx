@@ -1,3 +1,4 @@
+// components/Ui/ThemedImage.tsx
 "use client";
 
 import Link from "next/link";
@@ -19,32 +20,44 @@ export default function ThemedImage({
   href,
   wrapperClassName,
   priority,
+  className,
   ...img
 }: Props) {
   const node = (
-    <span className={["inline-flex items-center", wrapperClassName].filter(Boolean).join(" ")}>
+    <span
+      className={[
+        // ↓↓↓ 여기 w-full h-full 추가가 핵심
+        "relative block w-full h-full",
+        wrapperClassName,
+      ]
+        .filter(Boolean)
+        .join(" ")}
+    >
       {/* Light */}
       <Image
         {...img}
         src={lightSrc}
         alt={alt}
+        fill
         priority={priority}
         loading={priority ? undefined : "lazy"}
         decoding={priority ? undefined : "async"}
-        className={["theme-light", img.className].filter(Boolean).join(" ")}
+        className={["theme-light", "object-cover", className].filter(Boolean).join(" ")}
       />
       {/* Dark */}
       <Image
         {...img}
         src={darkSrc}
         alt={alt}
+        fill
         priority={priority}
         loading={priority ? undefined : "lazy"}
         decoding={priority ? undefined : "async"}
-        className={["theme-dark", img.className].filter(Boolean).join(" ")}
+        className={["theme-dark", "object-cover", className].filter(Boolean).join(" ")}
       />
     </span>
   );
+
   return href ? (
     <Link href={href} aria-label={alt} className="inline-flex items-center">
       {node}
