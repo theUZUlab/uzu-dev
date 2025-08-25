@@ -125,34 +125,30 @@ export default function TagTabs({
         </span>
       </button>
 
-      {tags.length === 0 ? (
-        <span className="text-xs text-[var(--color-text)] shrink-0">태그 없음</span>
-      ) : (
-        tags.map((t) => {
-          const active = selected.includes(t.name);
-          return (
-            <button
-              key={t.name}
-              type="button"
-              onClick={(e) => onClickTag(t.name, e)}
-              className="aurora-frame hover:cursor-pointer rounded-[var(--radius-md)] p-0.5 shrink-0 snap-start"
+      {tags.map((t) => {
+        const active = selected.includes(t.name);
+        return (
+          <button
+            key={t.name}
+            type="button"
+            onClick={(e) => onClickTag(t.name, e)}
+            className="aurora-frame hover:cursor-pointer rounded-[var(--radius-md)] p-0.5 shrink-0 snap-start"
+          >
+            <span
+              className={`${btnInnerCls} ${
+                active
+                  ? "bg-[var(--color-brand)] text-[var(--color-text)]"
+                  : "bg-[var(--color-panel)] text-[var(--color-text)]"
+              }`}
             >
-              <span
-                className={`${btnInnerCls} ${
-                  active
-                    ? "bg-[var(--color-brand)] text-[var(--color-text)]"
-                    : "bg-[var(--color-panel)] text-[var(--color-text)]"
-                }`}
-              >
-                {t.name}
-                <span className="ml-1 md:ml-1.5 lg:ml-2 opacity-70 font-semibold text-xs">
-                  {t.count}
-                </span>
+              {t.name}
+              <span className="ml-1 md:ml-1.5 lg:ml-2 opacity-70 font-semibold text-xs">
+                {t.count}
               </span>
-            </button>
-          );
-        })
-      )}
+            </span>
+          </button>
+        );
+      })}
     </div>
   );
 }
