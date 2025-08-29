@@ -36,9 +36,9 @@ export default async function SiteHomePage() {
       aria-labelledby="home-title"
     >
       {/* a11y용 제목 (시각적으로 숨김) */}
-      <h2 id="home-title" className="sr-only">
+      <h3 id="home-title" className="sr-only">
         UZU Home
-      </h2>
+      </h3>
 
       {/* HERO */}
       <section className="py-5 md:py-24">

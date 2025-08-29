@@ -14,7 +14,8 @@
   --color-brand: #5950a3;
 
   /* 폰트 */
-  --font-sans: "Pretendard Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+  --font-sans:
+    "Pretendard Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
     "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans", sans-serif;
 
   /* 컨테이너 */
@@ -178,7 +179,9 @@ body {
   animation: spin var(--aurora-speed) linear infinite;
   will-change: transform;
   opacity: 0;
-  transition: opacity 0.3s ease, background 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    background 0.3s ease;
 }
 .aurora-frame:hover::before {
   opacity: 1;
@@ -206,9 +209,12 @@ body {
 =========================================================== */
 .md-body {
   color: var(--color-text);
-  line-height: 1.75;
+  line-height: 0.75;
   font-size: 0.875rem;
   max-width: none;
+}
+.md-body :not(br) {
+  line-height: 1.75;
 }
 @media (min-width: 768px) {
   .md-body {
@@ -228,39 +234,29 @@ body {
 .md-body h6 {
   font-weight: 900;
   line-height: 1.25;
-  margin-top: 1.6em;
-  margin-bottom: 1.1em;
+  margin-top: 1.1em;
+  margin-bottom: 0.5em;
   color: var(--color-text);
 }
-.md-body h1 {
-  font-size: clamp(1.5rem, 3vw, 2rem);
-}
-.md-body h2 {
-  font-size: clamp(1.35rem, 2.5vw, 1.8rem);
-}
-.md-body h3 {
-  font-size: clamp(1.2rem, 2vw, 1.6rem);
-}
 .md-body h4 {
-  font-size: 1.125rem;
+  font-size: clamp(1.2rem, 2.5vw, 2rem);
 }
 .md-body h5 {
-  font-size: 1rem;
+  font-size: clamp(1rem, 2vw, 1.8rem);
 }
 .md-body h6 {
-  font-size: 0.875rem;
-  opacity: 0.85;
+  font-size: clamp(0.8rem, 1.5vw, 1.6rem);
 }
 .md-body p {
-  margin: 0.5em 0;
+  margin: 0;
 }
 .md-body ul,
 .md-body ol {
-  margin: 0.7em 0;
+  margin: 0;
   padding-left: 1.4em;
 }
 .md-body li + li {
-  margin-top: 0.5em;
+  margin-top: 0em;
 }
 .md-body ul {
   list-style: disc;

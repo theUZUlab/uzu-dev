@@ -81,9 +81,9 @@ export default function Card({ post }: { post: Post }) {
 
           {/* 제목 + 요약 */}
           <header>
-            <h2 className="text-base lg:text-xl font-black text-[var(--color-text)] truncate">
+            <h4 className="text-base lg:text-xl font-black text-[var(--color-text)] truncate">
               {post.title}
-            </h2>
+            </h4>
             {post.summary && (
               <p
                 className="mt-0.5 md:mt-1.5 lg:mt-2 text-sm lg:text-lg text-[var(--color-text)] truncate"

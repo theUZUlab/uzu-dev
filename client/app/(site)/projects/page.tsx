@@ -25,9 +25,9 @@ export default async function ProjectsPage({
 
   return (
     <main className="mx-auto max-w-screen-2xl 2xl:max-w-[1440px] px-4 lg:px-8 2xl:px-10 py-6 md:py-7 lg:py-8">
-      <h2 className="text-lg md:text-xl lg:text-2xl font-black text-[var(--color-text)]">
+      <h3 className="text-lg md:text-xl lg:text-2xl font-black text-[var(--color-text)]">
         All Projects <span className="text-sm opacity-70">({sorted.length})</span>
-      </h2>
+      </h3>
 
       <TagTabs type="project" />
 

@@ -82,9 +82,9 @@ export default async function ProjectPostPage({ params }: { params: Promise<Para
       )}
 
       {/* 제목 / 요약 / 날짜 */}
-      <h2 className="mt-6 md:mt-7 lg:mt-8 text-lg md:text-xl lg:text-2xl font-black text-[var(--color-text)]">
+      <h3 className="mt-6 md:mt-7 lg:mt-8 text-lg md:text-xl lg:text-2xl font-black text-[var(--color-text)]">
         {post.title}
-      </h2>
+      </h3>
       {post.summary && (
         <p className="mt-0.5 md:mt-1.5 lg:mt-2 text-sm lg:text-lg text-[var(--color-text)]">
           {post.summary}

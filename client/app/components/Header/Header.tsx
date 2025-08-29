@@ -80,21 +80,23 @@ export default function Header() {
         "
       >
         {/* 로고 */}
-        <Link href="/" aria-label="홈으로" className="inline-flex items-center">
-          {/* 모바일 (< md) */}
-          <span className="block md:hidden">
-            <ThemedIcon {...logoProps} width={60} height={45} />
-          </span>
-          {/* 태블릿 (md ~ lg) */}
-          <span className="hidden md:block lg:hidden">
-            <ThemedIcon {...logoProps} width={80} height={58} />
-          </span>
-          {/* 데스크톱 (lg 이상) */}
-          <span className="hidden lg:block">
-            <ThemedIcon {...logoProps} width={95} height={68} />
-          </span>
-          <span className="sr-only">UZU-DEV</span>
-        </Link>
+        <h1>
+          <Link href="/" aria-label="홈으로" className="inline-flex items-center">
+            {/* 모바일 (< md) */}
+            <span className="block md:hidden">
+              <ThemedIcon {...logoProps} width={60} height={45} />
+            </span>
+            {/* 태블릿 (md ~ lg) */}
+            <span className="hidden md:block lg:hidden">
+              <ThemedIcon {...logoProps} width={80} height={58} />
+            </span>
+            {/* 데스크톱 (lg 이상) */}
+            <span className="hidden lg:block">
+              <ThemedIcon {...logoProps} width={95} height={68} />
+            </span>
+            <span className="sr-only">UZU-DEV</span>
+          </Link>
+        </h1>
 
         {/* PC 네비게이션 (md 이상) */}
         <nav
