@@ -1,11 +1,15 @@
 "use client";
 
-import { MouseEvent, useEffect, useMemo, useState } from "react";
+import { MouseEvent, useCallback, useEffect, useMemo, useState } from "react";
+
+import { cn } from "@/lib/cn";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-import { listBlogs, listProjects } from "@/lib/api/posts";
 import { listTags } from "@/lib/api/meta";
 import { TagStat } from "@/lib/types";
+
+const TAG_TTL = 5 * 60 * 1000;
+const tagCache = new Map<string, { data: TagStat[]; ts: number }>();
 
 export default function TagTabs({
   type = "project",
@@ -18,8 +22,16 @@ export default function TagTabs({
   const pathname = usePathname();
   const sp = useSearchParams();
 
-  const [tags, setTags] = useState<TagStat[]>([]);
-  const [_loading, _setLoading] = useState(true); // 경고 제거용(현재 UI에서 loading 미사용)
+  const [tags, setTags] = useState<TagStat[]>(() => {
+    const key = `${type}:${category ?? ""}`;
+    const c = tagCache.get(key);
+    return c && Date.now() - c.ts <= TAG_TTL ? c.data : [];
+  });
+  const [loading, setLoading] = useState(() => {
+    const key = `${type}:${category ?? ""}`;
+    const c = tagCache.get(key);
+    return !(c && Date.now() - c.ts <= TAG_TTL);
+  });
 
   const selected = useMemo(
     () =>
@@ -32,38 +44,27 @@ export default function TagTabs({
   );
 
   useEffect(() => {
+    const cacheKey = `${type}:${category ?? ""}`;
+    const cached = tagCache.get(cacheKey);
+    if (cached && Date.now() - cached.ts <= TAG_TTL) {
+      setTags(cached.data);
+      setLoading(false);
+      return;
+    }
+
     let alive = true;
+    setLoading(true);
     (async () => {
-      _setLoading(true);
-
-      if (category) {
-        const res =
-          type === "project"
-            ? await listProjects({ page: 1, limit: 500, category })
-            : await listBlogs({ page: 1, limit: 500, category });
-
-        const items = Array.isArray(res?.items) ? res.items : [];
-        const counts = new Map<string, number>();
-
-        for (const p of items) {
-          if (!Array.isArray(p.tags)) continue;
-          for (const t of p.tags) {
-            const name = (t || "").toString().trim();
-            if (!name) continue;
-            counts.set(name, (counts.get(name) ?? 0) + 1);
-          }
-        }
-
-        const list = Array.from(counts, ([name, count]) => ({ name, count })).sort((a, b) =>
-          a.name.localeCompare(b.name)
-        );
-        if (alive) setTags(list);
-      } else {
-        const data = await listTags(type, { limit: 200 });
-        if (alive) setTags(data);
+      try {
+        const list = await listTags(type, { category, limit: 200 });
+        if (!alive) return;
+        tagCache.set(cacheKey, { data: list, ts: Date.now() });
+        setTags(list);
+      } catch (e) {
+        console.warn("[TagTabs] 태그 로드 실패:", e);
+      } finally {
+        if (alive) setLoading(false);
       }
-
-      if (alive) _setLoading(false);
     })();
 
     return () => {
@@ -71,32 +72,50 @@ export default function TagTabs({
     };
   }, [type, category]);
 
-  const apply = (next: string[]) => {
-    const params = new URLSearchParams(sp.toString());
-    if (next.length) params.set("tags", next.join(","));
-    else params.delete("tags");
-    router.replace(`${pathname}?${params.toString()}`);
-  };
+  const apply = useCallback(
+    (next: string[]) => {
+      const params = new URLSearchParams(sp.toString());
+      if (next.length) params.set("tags", next.join(","));
+      else params.delete("tags");
+      router.replace(`${pathname}?${params.toString()}`);
+    },
+    [sp, router, pathname]
+  );
 
-  const onClickTag = (name: string, e: MouseEvent<HTMLButtonElement>) => {
-    const multi = e.ctrlKey || e.metaKey;
-    const curr = new Set(selected);
+  const onClickTag = useCallback(
+    (name: string, e: MouseEvent<HTMLButtonElement>) => {
+      const multi = e.ctrlKey || e.metaKey;
+      const curr = new Set(selected);
+      if (multi) {
+        if (curr.has(name)) curr.delete(name);
+        else curr.add(name);
+        apply(Array.from(curr));
+        return;
+      }
+      if (selected.length === 1 && selected[0] === name) apply([]);
+      else apply([name]);
+    },
+    [selected, apply]
+  );
 
-    if (multi) {
-      if (curr.has(name)) curr.delete(name);
-      else curr.add(name);
-      apply(Array.from(curr));
-      return;
-    }
-
-    if (selected.length === 1 && selected[0] === name) apply([]);
-    else apply([name]);
-  };
-
-  const clearAll = () => apply([]);
+  const clearAll = useCallback(() => apply([]), [apply]);
 
   const btnInnerCls =
-    "aurora-inner px-3 py-1 md:px:4 lg:px-5 hover:cursor-pointer rounded-[var(--radius-md)] text-sm md:text-base lg:text-lg font-bold whitespace-nowrap flex items-center";
+    "aurora-inner px-3 py-1 md:px-4 lg:px-5 hover:cursor-pointer rounded-[var(--radius-md)] text-sm md:text-base lg:text-lg font-bold whitespace-nowrap flex items-center";
+
+  if (loading) {
+    return (
+      <div className="mt-3 flex flex-nowrap gap-2 overflow-x-auto md:flex-wrap" aria-busy="true">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <div
+            key={i}
+            className="h-8 rounded-[var(--radius-md)] bg-[var(--color-line)] animate-pulse shrink-0"
+            style={{ width: `${60 + i * 12}px` }}
+          />
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div
@@ -115,11 +134,7 @@ export default function TagTabs({
         className="aurora-frame hover:cursor-pointer rounded-[var(--radius-md)] p-0.5 shrink-0 snap-start"
       >
         <span
-          className={`${btnInnerCls} ${
-            selected.length === 0
-              ? "bg-[var(--color-brand)] text-[var(--color-text)]"
-              : "bg-[var(--color-panel)] text-[var(--color-text)]"
-          }`}
+          className={cn(btnInnerCls, selected.length === 0 ? "bg-[var(--color-brand)]" : "bg-[var(--color-panel)]", "text-[var(--color-text)]")}
         >
           All
         </span>
@@ -135,11 +150,7 @@ export default function TagTabs({
             className="aurora-frame hover:cursor-pointer rounded-[var(--radius-md)] p-0.5 shrink-0 snap-start"
           >
             <span
-              className={`${btnInnerCls} ${
-                active
-                  ? "bg-[var(--color-brand)] text-[var(--color-text)]"
-                  : "bg-[var(--color-panel)] text-[var(--color-text)]"
-              }`}
+              className={cn(btnInnerCls, active ? "bg-[var(--color-brand)]" : "bg-[var(--color-panel)]", "text-[var(--color-text)]")}
             >
               {t.name}
               <span className="ml-1 md:ml-1.5 lg:ml-2 opacity-70 font-semibold text-xs">

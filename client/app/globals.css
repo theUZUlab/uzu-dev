@@ -336,3 +336,22 @@ body {
 .md-body > *:last-child {
   margin-bottom: 0;
 }
+
+/* ===========================================================
+  Layout utilities
+=========================================================== */
+@layer components {
+  /* 공통 페이지 래퍼 (projects/blogs 4개 페이지) */
+  .page-container {
+    @apply mx-auto max-w-screen-2xl 2xl:max-w-[1440px]
+           px-4 lg:px-8 2xl:px-10
+           py-6 md:py-7 lg:py-8;
+  }
+
+  /* 헤더 드롭다운 메뉴 링크 (Header.tsx 4곳) */
+  .nav-dropdown-link {
+    @apply flex items-center justify-between rounded-md px-5 py-2
+           lg:text-lg font-bold
+           text-[var(--color-text)] hover:text-[var(--color-brand)];
+  }
+}

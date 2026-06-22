@@ -1,3 +1,4 @@
+import { cache } from "react";
 import {
   buildUrl,
   getJSON,
@@ -33,12 +34,12 @@ export async function listProjects(params?: {
   return normalizeList<Post>(raw);
 }
 
-export async function getProjectById(id: string, opts?: { revalidateSec?: number }): Promise<Post> {
+export const getProjectById = cache(async (id: string, revalidateSec = 60): Promise<Post> => {
   const safeId = encodeURIComponent(id);
   const url = buildUrl(`/api/posts/${safeId}`);
-  const raw = await getJSON<BackendItem<Post>>(url, opts?.revalidateSec ?? 60);
+  const raw = await getJSON<BackendItem<Post>>(url, revalidateSec);
   return normalizeItem<Post>(raw);
-}
+});
 
 /* =========================
    Blogs
@@ -64,9 +65,9 @@ export async function listBlogs(params?: {
   return normalizeList<Post>(raw);
 }
 
-export async function getBlogById(id: string, opts?: { revalidateSec?: number }): Promise<Post> {
+export const getBlogById = cache(async (id: string, revalidateSec = 60): Promise<Post> => {
   const safeId = encodeURIComponent(id);
   const url = buildUrl(`/api/posts/${safeId}`);
-  const raw = await getJSON<BackendItem<Post>>(url, opts?.revalidateSec ?? 60);
+  const raw = await getJSON<BackendItem<Post>>(url, revalidateSec);
   return normalizeItem<Post>(raw);
-}
+});

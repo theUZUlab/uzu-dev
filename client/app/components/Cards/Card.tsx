@@ -1,9 +1,10 @@
 "use client";
 
+import { memo } from "react";
 import Image from "next/image";
 import type { Post } from "@/lib/types";
 
-export default function Card({ post }: { post: Post }) {
+const Card = function Card({ post }: { post: Post }) {
   const dateObj = post.date ? new Date(post.date) : null;
   const isValidDate = !!(dateObj && !Number.isNaN(dateObj.getTime()));
 
@@ -110,4 +111,6 @@ export default function Card({ post }: { post: Post }) {
       </div>
     </article>
   );
-}
+};
+
+export default memo(Card);
