@@ -19,7 +19,7 @@ export async function listCategories(
   // 백엔드: /api/posts
   const url = buildUrl("/api/posts", { type, page: 1, limit });
 
-  const resp = await getJSON<ListResp>(url, opts?.revalidateSec ?? 60);
+  const resp = await getJSON<ListResp>(url, opts?.revalidateSec ?? 3600);
   const rows = Array.isArray(resp?.data) ? resp.data : [];
 
   const counts = new Map<string, number>();
@@ -37,14 +37,14 @@ export async function listCategories(
 /** 태그 집계 */
 export async function listTags(
   type: "project" | "blog",
-  opts?: { limit?: number; revalidateSec?: number }
+  opts?: { limit?: number; category?: string; revalidateSec?: number }
 ): Promise<TagStat[]> {
   const limit = Math.max(1, Math.min(opts?.limit ?? 100, 200));
-  const url = buildUrl("/api/posts", { type, page: 1, limit });
+  const url = buildUrl("/api/posts", { type, page: 1, limit, ...(opts?.category ? { category: opts.category } : {}) });
 
   const resp = await getJSON<{ data?: Array<{ tags?: string[] | null }> }>(
     url,
-    opts?.revalidateSec ?? 60
+    opts?.revalidateSec ?? 3600
   );
 
   const rows = Array.isArray(resp?.data) ? resp.data : [];

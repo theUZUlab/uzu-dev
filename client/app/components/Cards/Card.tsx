@@ -1,9 +1,10 @@
 "use client";
 
+import { memo } from "react";
 import Image from "next/image";
 import type { Post } from "@/lib/types";
 
-export default function Card({ post }: { post: Post }) {
+const Card = function Card({ post }: { post: Post }) {
   const dateObj = post.date ? new Date(post.date) : null;
   const isValidDate = !!(dateObj && !Number.isNaN(dateObj.getTime()));
 
@@ -81,9 +82,9 @@ export default function Card({ post }: { post: Post }) {
 
           {/* 제목 + 요약 */}
           <header>
-            <h2 className="text-base lg:text-xl font-black text-[var(--color-text)] truncate">
+            <h4 className="text-base lg:text-xl font-black text-[var(--color-text)] truncate">
               {post.title}
-            </h2>
+            </h4>
             {post.summary && (
               <p
                 className="mt-0.5 md:mt-1.5 lg:mt-2 text-sm lg:text-lg text-[var(--color-text)] truncate"
@@ -110,4 +111,6 @@ export default function Card({ post }: { post: Post }) {
       </div>
     </article>
   );
-}
+};
+
+export default memo(Card);

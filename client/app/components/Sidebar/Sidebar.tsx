@@ -1,55 +1,35 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { usePathname } from "next/navigation";
 
+import { cn } from "@/lib/cn";
+
 import Accordion from "../Ui/Accordion/Accordion";
-import { listCategories } from "@/lib/api/meta";
-import { CategoryStat } from "@/lib/types";
 import ThemedIcon from "@/app/components/Ui/ThemedIcon";
 import SupportPanelCompact from "@/app/components/Support/SupportPanelCompact";
 
 import { useSidebar } from "./SidebarContext";
+import { useNavData } from "./NavDataContext";
 
 export default function Sidebar() {
   const { open, closeSidebar } = useSidebar();
-  const [projCats, setProjCats] = useState<CategoryStat[] | null>(null);
-  const [blogCats, setBlogCats] = useState<CategoryStat[] | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { projCats, blogCats, loading } = useNavData();
   const pathname = usePathname();
 
-  const linkColor = (target: string, { startsWith = false } = {}) => {
-    const active = startsWith ? pathname.startsWith(target) : pathname === target;
-    return active
-      ? "text-[var(--color-brand)] hover:text-[var(--color-brand)]"
-      : "text-[var(--color-text)] hover:text-[var(--color-brand)]";
-  };
+  const linkColor = useCallback(
+    (target: string, { startsWith = false } = {}) => {
+      const active = startsWith ? pathname.startsWith(target) : pathname === target;
+      return active
+        ? "text-[var(--color-brand)] hover:text-[var(--color-brand)]"
+        : "text-[var(--color-text)] hover:text-[var(--color-brand)]";
+    },
+    [pathname]
+  );
 
-  const totalProj = (projCats ?? []).reduce((acc, c) => acc + c.count, 0);
-  const totalBlog = (blogCats ?? []).reduce((acc, c) => acc + c.count, 0);
-
-  useEffect(() => {
-    let alive = true;
-    async function run() {
-      try {
-        setLoading(true);
-        const [p, b] = await Promise.all([
-          listCategories("project", { limit: 100 }),
-          listCategories("blog", { limit: 100 }),
-        ]);
-        if (!alive) return;
-        setProjCats(p);
-        setBlogCats(b);
-      } finally {
-        if (alive) setLoading(false);
-      }
-    }
-    run();
-    return () => {
-      alive = false;
-    };
-  }, []);
+  const totalProj = useMemo(() => (projCats ?? []).reduce((acc, c) => acc + c.count, 0), [projCats]);
+  const totalBlog = useMemo(() => (blogCats ?? []).reduce((acc, c) => acc + c.count, 0), [blogCats]);
 
   const asideId = "app-sidebar";
 
@@ -61,10 +41,10 @@ export default function Sidebar() {
         aria-hidden={!open}
         tabIndex={-1}
         onClick={closeSidebar}
-        className={[
+        className={cn(
           "fixed inset-0 z-50 bg-black/50 backdrop-blur-sm transition-opacity duration-200",
-          open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none",
-        ].join(" ")}
+          open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        )}
       />
 
       {/* panel */}
@@ -73,18 +53,15 @@ export default function Sidebar() {
         role="dialog"
         aria-modal="true"
         aria-labelledby={`${asideId}-title`}
-        className={[
-          "fixed inset-y-0 right-0 z-50",
-          "bg-[var(--color-bg)]",
-          "transition-transform duration-200 will-change-transform",
-          open ? "translate-x-0" : "translate-x-full",
-          // base
+        className={cn(
+          "fixed inset-y-0 right-0 z-50 flex flex-col",
+          "bg-[var(--color-bg)] transition-transform duration-200 will-change-transform",
           "w-[80%] max-w-[320px] px-4 py-6",
           "md:w-[60%] md:max-w-[360px] md:px-6 md:py-7",
           "lg:w-[420px] lg:max-w-[420px] lg:px-8",
           "2xl:w-[480px] 2xl:max-w-[480px] 2xl:px-10",
-          "flex flex-col",
-        ].join(" ")}
+          open ? "translate-x-0" : "translate-x-full"
+        )}
       >
         <h2 id={`${asideId}-title`} className="sr-only">
           사이드바 메뉴
@@ -122,9 +99,7 @@ export default function Sidebar() {
               <Link
                 href="/"
                 onClick={closeSidebar}
-                className={`inline-flex items-center leading-none py-2 text-lg lg:text-xl font-black ${linkColor(
-                  "/"
-                )}`}
+                className={cn("inline-flex items-center leading-none py-2 text-lg lg:text-xl font-black", linkColor("/"))}
                 aria-current={pathname === "/" ? "page" : undefined}
               >
                 Home
@@ -136,10 +111,7 @@ export default function Sidebar() {
               <Accordion
                 title={
                   <span
-                    className={`inline-flex items-center leading-none text-lg lg:text-xl font-black ${linkColor(
-                      "/projects",
-                      { startsWith: true }
-                    )}`}
+                    className={cn("inline-flex items-center leading-none text-lg lg:text-xl font-black", linkColor("/projects", { startsWith: true }))}
                     aria-current={pathname.startsWith("/projects") ? "page" : undefined}
                   >
                     Projects
@@ -154,10 +126,7 @@ export default function Sidebar() {
                       <Link
                         href="/projects"
                         onClick={closeSidebar}
-                        className={[
-                          "flex items-center justify-between px-3 py-1 text-sm font-semibold",
-                          linkColor("/projects", { startsWith: true }),
-                        ].join(" ")}
+                        className={cn("flex items-center justify-between px-3 py-1 text-sm font-semibold", linkColor("/projects", { startsWith: true }))}
                         aria-current={pathname.startsWith("/projects") ? "page" : undefined}
                       >
                         <span>All Projects</span>
@@ -172,10 +141,7 @@ export default function Sidebar() {
                             <Link
                               href={href}
                               onClick={closeSidebar}
-                              className={[
-                                "flex items-center justify-between px-3 py-1 text-sm font-semibold",
-                                linkColor(href),
-                              ].join(" ")}
+                              className={cn("flex items-center justify-between px-3 py-1 text-sm font-semibold", linkColor(href))}
                               aria-current={pathname === href ? "page" : undefined}
                             >
                               <span>{c.name}</span>
@@ -197,10 +163,7 @@ export default function Sidebar() {
               <Accordion
                 title={
                   <span
-                    className={`inline-flex items-center leading-none text-lg lg:text-xl font-black ${linkColor(
-                      "/blogs",
-                      { startsWith: true }
-                    )}`}
+                    className={cn("inline-flex items-center leading-none text-lg lg:text-xl font-black", linkColor("/blogs", { startsWith: true }))}
                     aria-current={pathname.startsWith("/blogs") ? "page" : undefined}
                   >
                     Blogs
@@ -214,10 +177,7 @@ export default function Sidebar() {
                       <Link
                         href="/blogs"
                         onClick={closeSidebar}
-                        className={[
-                          "flex items-center justify-between px-3 py-1 text-sm font-semibold",
-                          linkColor("/blogs", { startsWith: true }),
-                        ].join(" ")}
+                        className={cn("flex items-center justify-between px-3 py-1 text-sm font-semibold", linkColor("/blogs", { startsWith: true }))}
                         aria-current={pathname.startsWith("/blogs") ? "page" : undefined}
                       >
                         <span>All Blogs</span>
@@ -232,10 +192,7 @@ export default function Sidebar() {
                             <Link
                               href={href}
                               onClick={closeSidebar}
-                              className={[
-                                "flex items-center justify-between px-3 py-1 text-sm font-semibold",
-                                linkColor(href),
-                              ].join(" ")}
+                              className={cn("flex items-center justify-between px-3 py-1 text-sm font-semibold", linkColor(href))}
                               aria-current={pathname === href ? "page" : undefined}
                             >
                               <span>{c.name}</span>
@@ -257,10 +214,7 @@ export default function Sidebar() {
               <Accordion
                 title={
                   <span
-                    className={`
-                      inline-flex items-center leading-none text-lg lg:text-xl font-black
-                      ${linkColor("/support")} cursor-pointer
-                    `}
+                    className={cn("inline-flex items-center leading-none text-lg lg:text-xl font-black cursor-pointer", linkColor("/support"))}
                     aria-current={pathname === "/support" ? "page" : undefined}
                   >
                     Support

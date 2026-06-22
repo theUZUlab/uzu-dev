@@ -33,13 +33,13 @@ export default function SupportPanel() {
     >
       {/* 상단 메시지 */}
       <div className="text-center mb-4 md:mb-5 lg:mb-6">
-        <h2
+        <h3
           id={titleId}
           className="text-base md:text-lg lg:text-xl font-black text-[var(--color-text)] tracking-tight"
         >
           따뜻한 관심과 응원에
           <br className="hidden lg:block" /> 감사합니다.
-        </h2>
+        </h3>
         <p
           id={descId}
           className="mt-2 md:mt-3 text-xs md:text-sm lg:text-base text-[var(--color-text)]/80 leading-relaxed"

@@ -7,8 +7,9 @@ type IconSrcSet = { base: string; hover?: string; focus?: string };
 
 type Props = {
   alt: string;
-  width: number;
-  height: number;
+  /** 0 또는 생략 시 className으로 크기 제어 (반응형 로고 등) */
+  width?: number;
+  height?: number;
   href?: string;
   className?: string;
   wrapperClassName?: string;
@@ -81,7 +82,7 @@ function InnerIcon({
       className={["relative inline-flex items-center justify-center outline-none group", className]
         .filter(Boolean)
         .join(" ")}
-      style={{ width, height }}
+      style={width != null && height != null && (width > 0 && height > 0) ? { width, height } : undefined}
       aria-hidden={ariaHidden}
     >
       {/* ---------- Light ---------- */}

@@ -1,46 +1,62 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
+import { memo, useCallback } from "react";
 import Link from "next/link";
 
 import Card from "@/app/components/Cards/Card";
 import InfiniteList from "@/app/components/Lists/InfiniteList";
+import { listProjects, listBlogs } from "@/lib/api/posts";
 
 import type { Post } from "@/lib/types";
 
 type Props = {
-  /** 필터/정렬까지 끝난 전체 배열 */
-  allItems: Post[];
-  /** 페이지 사이즈 (기본 8) */
+  initialItems: Post[];
+  total: number;
   pageSize?: number;
-  /** 링크 베이스 경로: "/projects" | "/blogs" */
+  type: "project" | "blog";
+  category?: string;
+  tags?: string[];
   basePath: "/projects" | "/blogs";
 };
 
-export default function PostsInfiniteListClient({ allItems, pageSize = 8, basePath }: Props) {
-  const initialItems = useMemo(() => allItems.slice(0, pageSize), [allItems, pageSize]);
-  const total = allItems.length;
+function PostsInfiniteListClient({
+  initialItems,
+  total,
+  pageSize = 8,
+  type,
+  category,
+  tags,
+  basePath,
+}: Props) {
+  const getId = useCallback((p: Post) => p.id, []);
 
   const loadMore = useCallback(
     async (nextPage: number) => {
-      const start = (nextPage - 1) * pageSize;
-      const end = start + pageSize;
-      const chunk = allItems.slice(start, end);
-      return { items: chunk, total };
+      const fn = type === "project" ? listProjects : listBlogs;
+      const res = await fn({
+        page: nextPage,
+        limit: pageSize,
+        category,
+        tags: tags?.length ? tags : undefined,
+      });
+      return { items: res.items, total: res.total };
     },
-    [allItems, pageSize, total]
+    [type, pageSize, category, tags]
   );
 
-  const renderItem = (p: Post) => (
-    <Link
-      key={p.id}
-      href={`${basePath}/${encodeURIComponent(p.category || "uncategorized")}/${p.id}`}
-      className="block w-full"
-      prefetch
-      aria-label={`${p.title} 상세 보기`}
-    >
-      <Card post={p} />
-    </Link>
+  const renderItem = useCallback(
+    (p: Post) => (
+      <Link
+        key={p.id}
+        href={`${basePath}/${encodeURIComponent(p.category || "uncategorized")}/${p.id}`}
+        className="block w-full"
+        prefetch
+        aria-label={`${p.title} 상세 보기`}
+      >
+        <Card post={p} />
+      </Link>
+    ),
+    [basePath]
   );
 
   return (
@@ -49,9 +65,12 @@ export default function PostsInfiniteListClient({ allItems, pageSize = 8, basePa
       total={total}
       loadMore={loadMore}
       renderItem={renderItem}
-      getKey={(p) => p.id}
+      getKey={getId}
+      dedupeKey={getId}
       className="flex flex-col gap-4 md:gap-5 lg:gap-6"
       errorPrefix="목록 불러오기 실패:"
     />
   );
 }
+
+export default memo(PostsInfiniteListClient);

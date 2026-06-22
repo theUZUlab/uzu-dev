@@ -20,9 +20,9 @@ export default function RecentProjectsList({ items }: { items: Post[] }) {
           className="px-3.5 py-3.5 md:px-7 md:py-4 lg:px-10 lg:py-7"
           aria-labelledby={`proj-${p.id}-title`}
         >
-          <h4 id={`proj-${p.id}-title`} className="text-base md:text-lg font-black">
+          <h5 id={`proj-${p.id}-title`} className="text-base md:text-lg font-black">
             {p.title}
-          </h4>
+          </h5>
           {p.summary && (
             <p className="text-sm md:text-base line-clamp-1 text-[var(--color-text)]/90">
               {p.summary}

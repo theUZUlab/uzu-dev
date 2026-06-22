@@ -11,6 +11,7 @@ type InfiniteListProps<T> = {
   loadMore: (nextPage: number) => Promise<LoadResult<T>>;
   renderItem: (item: T) => React.ReactNode;
   getKey?: (item: T, index: number) => React.Key;
+  dedupeKey?: (item: T) => React.Key;
   className?: string;
   errorPrefix?: string;
 };
@@ -21,6 +22,7 @@ export default function InfiniteList<T>({
   loadMore,
   renderItem,
   getKey,
+  dedupeKey,
   className,
   errorPrefix = "Failed to load:",
 }: InfiniteListProps<T>) {
@@ -28,6 +30,7 @@ export default function InfiniteList<T>({
     initialItems,
     total,
     loadMore,
+    dedupeKey,
   });
 
   const listId = useId();

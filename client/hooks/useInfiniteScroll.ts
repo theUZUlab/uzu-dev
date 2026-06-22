@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
 type LoadResult<T> = { items: T[]; total: number };
 
@@ -12,10 +12,12 @@ export function useInfiniteScroll<T>({
   initialItems,
   total,
   loadMore,
+  dedupeKey,
 }: {
   initialItems: T[];
   total: number;
   loadMore: (nextPage: number) => Promise<LoadResult<T>>;
+  dedupeKey?: (item: T) => React.Key;
 }) {
   const [items, setItems] = useState<T[]>(initialItems);
   const [page, setPage] = useState(1); // SSR로 1페이지 로드됨
@@ -26,6 +28,12 @@ export function useInfiniteScroll<T>({
 
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const lockRef = useRef(false);
+
+  // page/hasNext를 ref로도 유지 — fetchNext deps에서 제거해 Observer 재연결 방지
+  const pageRef = useRef(page);
+  pageRef.current = page;
+  const hasNextRef = useRef(hasNext);
+  hasNextRef.current = hasNext;
 
   // 최신 loadMore 유지
   const loadMoreRef = useRef(loadMore);
@@ -43,22 +51,26 @@ export function useInfiniteScroll<T>({
   }, [initialItems, total]);
 
   const fetchNext = useCallback(async () => {
-    if (!hasNext || loading || lockRef.current) return;
+    if (!hasNextRef.current || lockRef.current) return;
     lockRef.current = true;
     setLoading(true);
     setError(null);
     try {
-      const nextPage = page + 1;
+      const nextPage = pageRef.current + 1;
       const res = await loadMoreRef.current(nextPage);
-      setItems((prev) => prev.concat(res.items));
+      setItems((prev) => {
+        if (!dedupeKey) return prev.concat(res.items);
+        const seen = new Set(prev.map(dedupeKey));
+        return prev.concat(res.items.filter((it) => !seen.has(dedupeKey(it))));
+      });
       setPage(nextPage);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
-      setLoading(false);
       lockRef.current = false;
+      setLoading(false);
     }
-  }, [hasNext, loading, page]);
+  }, [dedupeKey]);
 
   // IntersectionObserver로 sentinel 관찰
   useEffect(() => {
@@ -89,8 +101,8 @@ export function useInfiniteScroll<T>({
 
   // 에러 후 재시도용 함수(선택 사용)
   const retry = useCallback(() => {
-    if (!loading) fetchNext();
-  }, [fetchNext, loading]);
+    if (!lockRef.current) fetchNext();
+  }, [fetchNext]);
 
   return { items, sentinelRef, hasNext, loading, error, retry };
 }

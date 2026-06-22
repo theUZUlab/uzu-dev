@@ -1,25 +1,25 @@
-import type { Post } from "@/lib/types";
+import type { ListResponse } from "@/lib/types";
 
-export interface ListResponse<T = Post> {
-  items: T[];
-  page: number;
-  limit: number;
-  total: number;
-}
-
+/** 런타임 환경 */
 const isServer = typeof window === "undefined";
 
+/** 베이스 URL 계산 */
 const SERVER_BASE = (process.env.BACKEND_BASE || "").replace(/\/$/, "");
 const CLIENT_BASE = (process.env.NEXT_PUBLIC_API_BASE || "/api").replace(/\/$/, "") + "/backend";
 
 function ensureServerBase() {
   if (!SERVER_BASE) {
-    throw new Error("BACKEND_BASE is not set. Please set BACKEND_BASE in env");
+    throw new Error(
+      "BACKEND_BASE is not set. Please set BACKEND_BASE (e.g. https://uzu-dev.onrender.com)"
+    );
   }
 }
 
-/** 경로+쿼리 → 최종 URL 문자열 */
-export function buildUrl(path: string, qs?: Record<string, string | number | undefined>) {
+/** 경로+쿼리 → URL 문자열 */
+export function buildUrl(
+  path: string,
+  qs?: Record<string, string | number | boolean | undefined>
+) {
   const p = path.startsWith("/") ? path : `/${path}`;
   const sp = new URLSearchParams();
   if (qs) {
@@ -29,7 +29,6 @@ export function buildUrl(path: string, qs?: Record<string, string | number | und
     }
   }
   const q = sp.toString();
-
   if (isServer) {
     ensureServerBase();
     return q ? `${SERVER_BASE}${p}?${q}` : `${SERVER_BASE}${p}`;
@@ -39,8 +38,8 @@ export function buildUrl(path: string, qs?: Record<string, string | number | und
 
 /** 공통 GET(JSON) — 서버에선 revalidate 사용 */
 export async function getJSON<T>(url: string, revalidateSec = 60): Promise<T> {
-  const init = isServer ? { next: { revalidate: revalidateSec } as const } : undefined;
-  const res = await fetch(url, init);
+  const init = isServer ? { next: { revalidate: revalidateSec } } : undefined;
+  const res = await fetch(url, init as RequestInit);
   if (!res.ok) {
     const text = await res.text().catch(() => "");
     throw new Error(`GET ${url} -> ${res.status} ${text}`);
@@ -48,42 +47,40 @@ export async function getJSON<T>(url: string, revalidateSec = 60): Promise<T> {
   return (await res.json()) as T;
 }
 
-/* =========================
-   정규화 유틸
-========================= */
+/* ==========
+   응답 형태
+========== */
 
-type UnknownRecord = Record<string, unknown>;
-
-/** 서버가 반환할 수 있는 목록 응답 형태(둘 중 하나) */
+/** 백엔드가 줄 수 있는 "목록" 응답 케이스 */
 export type BackendList<T> =
   | { items: T[]; page?: number; limit?: number; total?: number }
   | { data: T[]; page?: number; limit?: number; total?: number };
 
-/** 서버가 반환할 수 있는 단건 응답 형태(둘 중 하나) */
+/** 백엔드가 줄 수 있는 "단건" 응답 케이스 */
 export type BackendItem<T> = T | { data: T };
 
-/** 좁히기 유틸 */
-function isObject(value: unknown): value is UnknownRecord {
-  return typeof value === "object" && value !== null;
+/** 안전체크 유틸 */
+function isRecord(v: unknown): v is Record<string, unknown> {
+  return typeof v === "object" && v !== null;
 }
-function hasArrayProp<T>(obj: unknown, key: "items" | "data"): obj is { [K in typeof key]: T[] } {
-  return isObject(obj) && Array.isArray((obj as UnknownRecord)[key]);
+function hasArrayProp<T>(v: unknown, key: "items" | "data"): v is Record<typeof key, T[]> {
+  return isRecord(v) && Array.isArray((v as Record<string, unknown>)[key]);
 }
-function hasDataObject<T>(obj: unknown): obj is { data: T } {
-  return isObject(obj) && "data" in obj && !Array.isArray((obj as UnknownRecord).data);
+function hasDataObject<T>(v: unknown): v is { data: T } {
+  return isRecord(v) && "data" in v && !Array.isArray((v as Record<string, unknown>).data);
 }
-function readNumber(obj: UnknownRecord, key: string, fallback: number): number {
-  const v = obj[key];
-  return typeof v === "number" && Number.isFinite(v) ? v : fallback;
+function readNumber(obj: Record<string, unknown>, key: string, fallback: number): number {
+  const val = obj[key];
+  return typeof val === "number" && Number.isFinite(val) ? val : fallback;
 }
 
-/** 목록 응답 정규화: items | data 둘 중 무엇이든 items로 맞춤 */
+/** 목록 응답 정규화 */
 export function normalizeList<T>(raw: BackendList<T>): ListResponse<T> {
   let items: T[] = [];
   if (hasArrayProp<T>(raw, "items")) items = raw.items;
   else if (hasArrayProp<T>(raw, "data")) items = raw.data;
 
-  const meta = isObject(raw) ? (raw as UnknownRecord) : {};
+  const meta = isRecord(raw) ? raw : {};
   const page = readNumber(meta, "page", 1);
   const limit = readNumber(meta, "limit", items.length || 0);
   const total = readNumber(meta, "total", items.length || 0);
@@ -91,10 +88,8 @@ export function normalizeList<T>(raw: BackendList<T>): ListResponse<T> {
   return { items, page, limit, total };
 }
 
-/** 단건 응답 정규화: T | {data:T} → T */
+/** 단건 응답 정규화 */
 export function normalizeItem<T>(raw: BackendItem<T>): T {
-  if (hasDataObject<T>(raw)) {
-    return (raw as { data: T }).data;
-  }
+  if (hasDataObject<T>(raw)) return raw.data;
   return raw as T;
 }
