@@ -30,7 +30,7 @@ const PostSchema = new Schema(
                 return ret;
             },
         },
-    }
+    },
 );
 
 // 검색/정렬 인덱스

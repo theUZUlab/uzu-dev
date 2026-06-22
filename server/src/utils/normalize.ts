@@ -57,7 +57,7 @@ export function normalizeBody(body: PostInput): Normalized {
                     v
                         .map(String)
                         .map((s) => s.trim())
-                        .filter(Boolean)
+                        .filter(Boolean),
                 ),
             ];
         }
@@ -67,7 +67,7 @@ export function normalizeBody(body: PostInput): Normalized {
                     v
                         .split(',')
                         .map((s) => s.trim())
-                        .filter(Boolean)
+                        .filter(Boolean),
                 ),
             ];
         }
