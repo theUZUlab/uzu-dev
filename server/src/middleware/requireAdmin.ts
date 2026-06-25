@@ -6,10 +6,10 @@ import { env } from '../config/env';
  * 설정이 없으면 개발 편의상 오픈 (운영에서는 반드시 설정 권장)
  */
 export function requireAdmin(req: Request, res: Response, next: NextFunction) {
-    if (!env.ADMIN_TOKEN) return next();
+  if (!env.ADMIN_TOKEN) return next();
 
-    const auth = String(req.get('authorization') || '');
-    if (auth === `Bearer ${env.ADMIN_TOKEN}`) return next();
+  const auth = String(req.get('authorization') || '');
+  if (auth === `Bearer ${env.ADMIN_TOKEN}`) return next();
 
-    return res.status(401).json({ error: 'Unauthorized' });
+  return res.status(401).json({ error: 'Unauthorized' });
 }
